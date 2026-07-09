@@ -80,19 +80,7 @@ export default function Hero() {
           </button>
         </motion.div>
 
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.8 }}
-          className="flex flex-wrap justify-center gap-12">
-          {[
-            { label: 'Игроков онлайн', value: online.toLocaleString('ru-RU'), color: 'text-green-400' },
-            { label: 'Зарегистрировано', value: '50 000+', color: 'gradient-text' },
-            { label: 'Серверов', value: '3', color: 'text-[#00D2FF]' },
-          ].map((s, i) => (
-            <div key={i} className="text-center">
-              <div className={`font-manrope font-black text-4xl ${s.color}`}>{s.value}</div>
-              <div className="text-sm mt-1" style={{ color: '#A9B0C2' }}>{s.label}</div>
-            </div>
-          ))}
-        </motion.div>
+
       </div>
       <div className="absolute bottom-0 left-0 right-0 h-32" style={{ background: 'linear-gradient(to top, #090B10, transparent)' }} />
     </section>
