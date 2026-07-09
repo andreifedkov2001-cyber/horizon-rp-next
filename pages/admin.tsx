@@ -8,6 +8,7 @@ import { useAuth } from '../context/AuthContext'
 
 interface User { id: string; nick: string; email: string; role: string; joined: string; banned?: boolean }
 interface Log  { time: string; type: 'auth'|'forum'|'admin'; text: string }
+interface Role { id: string; name: string; color: string; icon: string }
 
 const ls = {
   get: (k: string, fb: any = []) => { try { return JSON.parse(localStorage.getItem(k)||'null')??fb } catch { return fb } },
@@ -23,7 +24,7 @@ const ROLE_COLORS: Record<string,{ bg:string; color:string }> = {
 const Admin: NextPage = () => {
   const { user } = useAuth()
   const router   = useRouter()
-  const [tab, setTab]   = useState<'stats'|'users'|'logs'|'settings'>('stats')
+  const [tab, setTab]   = useState<'stats'|'users'|'roles'|'logs'|'settings'>('stats')
   const [users, setUsers]     = useState<User[]>([])
   const [logs, setLogs]       = useState<Log[]>([])
   const [uSearch, setUSearch] = useState('')
@@ -34,6 +35,23 @@ const Admin: NextPage = () => {
   const [eBan, setEBan]       = useState(false)
   const [cfg, setCfg]         = useState({ forumName: 'Horizon RP Forum', perPage: 15, regOpen: true })
 
+  // Роли
+  const DEFAULT_ROLES: Role[] = [
+    { id: 'Admin',  name: 'Администратор', color: '#f472b6', icon: '👑' },
+    { id: 'Moder',  name: 'Модератор',     color: '#a78bfa', icon: '🛡' },
+    { id: 'Player', name: 'Игрок',         color: '#60a5fa', icon: '🎮' },
+  ]
+  const [roles, setRoles]     = useState<Role[]>(DEFAULT_ROLES)
+  const [editRole, setEditRole] = useState<Role|null>(null)
+  const [rName, setRName]     = useState('')
+  const [rColor, setRColor]   = useState('#60a5fa')
+  const [rIcon, setRIcon]     = useState('🎮')
+  const [showAddRole, setShowAddRole] = useState(false)
+  const [newRoleId, setNewRoleId]     = useState('')
+  const [newRoleName, setNewRoleName] = useState('')
+  const [newRoleColor, setNewRoleColor] = useState('#60a5fa')
+  const [newRoleIcon, setNewRoleIcon]   = useState('🎮')
+
   useEffect(() => {
     if (typeof window === 'undefined') return
     const s = ls.get('hrp_session', null)
@@ -41,6 +59,7 @@ const Admin: NextPage = () => {
     setUsers(ls.get('hrp_users', []))
     setLogs([...ls.get('hrp_logs', [])].reverse())
     const c = ls.get('hrp_settings', null); if (c) setCfg(c)
+    const r = ls.get('hrp_roles', null); if (r) setRoles(r)
   }, [])
 
   if (!user || (user.role !== 'Admin' && user.role !== 'Moder')) return (
@@ -79,7 +98,38 @@ const Admin: NextPage = () => {
   const fUsers = users.filter(u => !uSearch || u.nick.toLowerCase().includes(uSearch.toLowerCase()) || u.email.toLowerCase().includes(uSearch.toLowerCase()))
   const fLogs  = logs.filter(l => (!lSearch || l.text.toLowerCase().includes(lSearch.toLowerCase())) && (!lType || l.type === lType))
 
-  const TABS = [{ id:'stats',label:'📊 Статистика'},{id:'users',label:'👥 Пользователи'},{id:'logs',label:'📋 Логи'},{id:'settings',label:'⚙️ Настройки'}] as const
+  // Функции ролей
+  const saveRoles = (r: Role[]) => { setRoles(r); ls.set('hrp_roles', r) }
+  const openEditRole = (r: Role) => { setEditRole(r); setRName(r.name); setRColor(r.color); setRIcon(r.icon) }
+  const saveEditRole = () => {
+    if (!editRole) return
+    const next = roles.map(r => r.id === editRole.id ? { ...r, name: rName, color: rColor, icon: rIcon } : r)
+    saveRoles(next)
+    addLog('admin', `${user.nick} изменил роль "${rName}"`)
+    setEditRole(null)
+  }
+  const addRole = () => {
+    if (!newRoleId.trim() || !newRoleName.trim()) return
+    if (roles.find(r => r.id === newRoleId)) return
+    const next = [...roles, { id: newRoleId, name: newRoleName, color: newRoleColor, icon: newRoleIcon }]
+    saveRoles(next)
+    addLog('admin', `${user.nick} добавил роль "${newRoleName}"`)
+    setShowAddRole(false); setNewRoleId(''); setNewRoleName(''); setNewRoleColor('#60a5fa'); setNewRoleIcon('🎮')
+  }
+  const deleteRole = (id: string) => {
+    if (['Admin','Moder','Player'].includes(id)) return // базовые роли нельзя удалять
+    const next = roles.filter(r => r.id !== id)
+    saveRoles(next)
+    addLog('admin', `${user.nick} удалил роль "${id}"`)
+  }
+  const getRoleStyle = (roleId: string) => {
+    const r = roles.find(x => x.id === roleId)
+    if (!r) return ROLE_COLORS.Player
+    const hex = r.color
+    return { bg: hex + '22', color: hex }
+  }
+
+  const TABS = [{ id:'stats',label:'📊 Статистика'},{id:'users',label:'👥 Пользователи'},{id:'roles',label:'🏷️ Роли'},{id:'logs',label:'📋 Логи'},{id:'settings',label:'⚙️ Настройки'}] as const
 
   const inputStyle = { background:'rgba(255,255,255,0.04)', border:'1px solid rgba(255,255,255,0.08)', color:'#fff' }
   const logTypeStyle = (t: string) => {
@@ -176,6 +226,54 @@ const Admin: NextPage = () => {
                   </div>
                 ))}
                 {!fUsers.length && <div className="px-5 py-10 text-center text-sm" style={{ color:'#A9B0C2' }}>Ничего не найдено</div>}
+              </div>
+            </motion.div>
+          )}
+
+          {/* РОЛИ */}
+          {tab==='roles' && (
+            <motion.div initial={{ opacity:0 }} animate={{ opacity:1 }}>
+              <div className="flex gap-3 mb-5 flex-wrap">
+                <button onClick={()=>setShowAddRole(true)} className="btn-primary text-sm px-5 py-2.5">+ Добавить роль</button>
+              </div>
+              <div className="glass-card overflow-hidden">
+                {roles.map(r => (
+                  <div key={r.id} className="flex items-center gap-4 px-5 py-4 flex-wrap" style={{ borderBottom:'1px solid rgba(255,255,255,0.05)' }}>
+                    <div className="text-2xl flex-shrink-0">{r.icon}</div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="font-semibold text-sm">{r.name}</span>
+                        <span className="text-xs px-2 py-0.5 rounded-full font-semibold"
+                          style={{ background: r.color + '22', color: r.color, border: `1px solid ${r.color}44` }}>
+                          {r.icon} {r.name}
+                        </span>
+                        <span className="text-xs font-mono px-2 py-0.5 rounded"
+                          style={{ background:'rgba(255,255,255,0.05)', color:'#A9B0C2' }}>
+                          ID: {r.id}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2 mt-1">
+                        <div className="w-4 h-4 rounded-full border border-white/20 flex-shrink-0"
+                          style={{ background: r.color }} />
+                        <span className="text-xs font-mono" style={{ color:'#A9B0C2' }}>{r.color}</span>
+                      </div>
+                    </div>
+                    <div className="flex gap-2 flex-shrink-0">
+                      <button onClick={()=>openEditRole(r)}
+                        className="text-xs px-3 py-1.5 rounded-lg transition-colors"
+                        style={{ background:'rgba(109,93,251,0.1)', border:'1px solid rgba(109,93,251,0.3)', color:'#a78bfa' }}>
+                        ✏️ Изменить
+                      </button>
+                      {!['Admin','Moder','Player'].includes(r.id) && (
+                        <button onClick={()=>deleteRole(r.id)}
+                          className="text-xs px-3 py-1.5 rounded-lg transition-colors"
+                          style={{ background:'rgba(248,113,113,0.1)', border:'1px solid rgba(248,113,113,0.25)', color:'#f87171' }}>
+                          🗑 Удалить
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                ))}
               </div>
             </motion.div>
           )}
@@ -284,6 +382,129 @@ const Admin: NextPage = () => {
               <div className="flex gap-3 mt-2">
                 <button onClick={()=>setEditU(null)} className="btn-secondary flex-1 justify-center">Отмена</button>
                 <button onClick={saveEdit} className="btn-primary flex-1 justify-center">Сохранить</button>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      )}
+
+      {/* Модалка редактирования роли */}
+      {editRole && (
+        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4"
+          style={{ background:'rgba(0,0,0,0.85)', backdropFilter:'blur(8px)' }}>
+          <motion.div initial={{ scale:0.9,opacity:0 }} animate={{ scale:1,opacity:1 }}
+            className="w-full max-w-md rounded-2xl p-6"
+            style={{ background:'rgba(18,21,29,0.98)', border:'1px solid rgba(109,93,251,0.2)' }}>
+            <h3 className="font-manrope font-bold text-lg mb-5">✏️ Изменить роль</h3>
+
+            {/* Превью */}
+            <div className="flex items-center justify-center mb-5 p-4 rounded-xl"
+              style={{ background:'rgba(255,255,255,0.03)', border:'1px solid rgba(255,255,255,0.06)' }}>
+              <span className="text-sm px-4 py-2 rounded-full font-semibold"
+                style={{ background: rColor + '22', color: rColor, border: `1px solid ${rColor}44` }}>
+                {rIcon} {rName || 'Название роли'}
+              </span>
+            </div>
+
+            <div className="flex flex-col gap-4">
+              <div>
+                <label className="text-xs font-medium mb-1.5 block" style={{ color:'#A9B0C2' }}>Иконка</label>
+                <input value={rIcon} onChange={e=>setRIcon(e.target.value)} maxLength={4}
+                  placeholder="🎮" className="w-full rounded-xl px-4 py-2.5 text-sm outline-none"
+                  style={{ background:'rgba(255,255,255,0.04)', border:'1px solid rgba(255,255,255,0.08)', color:'#fff' }} />
+              </div>
+              <div>
+                <label className="text-xs font-medium mb-1.5 block" style={{ color:'#A9B0C2' }}>Название</label>
+                <input value={rName} onChange={e=>setRName(e.target.value)}
+                  placeholder="Название роли" className="w-full rounded-xl px-4 py-2.5 text-sm outline-none"
+                  style={{ background:'rgba(255,255,255,0.04)', border:'1px solid rgba(255,255,255,0.08)', color:'#fff' }} />
+              </div>
+              <div>
+                <label className="text-xs font-medium mb-1.5 block" style={{ color:'#A9B0C2' }}>Цвет</label>
+                <div className="flex gap-3 items-center">
+                  <input value={rColor} onChange={e=>setRColor(e.target.value)}
+                    placeholder="#f472b6" className="flex-1 rounded-xl px-4 py-2.5 text-sm outline-none font-mono"
+                    style={{ background:'rgba(255,255,255,0.04)', border:'1px solid rgba(255,255,255,0.08)', color:'#fff' }} />
+                  <input type="color" value={rColor} onChange={e=>setRColor(e.target.value)}
+                    className="w-12 h-10 rounded-xl cursor-pointer border-0 p-0.5"
+                    style={{ background:'transparent' }} />
+                </div>
+                {/* Быстрые цвета */}
+                <div className="flex gap-2 mt-2 flex-wrap">
+                  {['#f472b6','#a78bfa','#60a5fa','#34d399','#fb923c','#facc15','#f87171','#e879f9'].map(c => (
+                    <button key={c} onClick={()=>setRColor(c)}
+                      className="w-7 h-7 rounded-full border-2 transition-transform hover:scale-110"
+                      style={{ background:c, borderColor: rColor===c ? '#fff' : 'transparent' }} />
+                  ))}
+                </div>
+              </div>
+              <div className="flex gap-3 mt-2">
+                <button onClick={()=>setEditRole(null)} className="btn-secondary flex-1 justify-center">Отмена</button>
+                <button onClick={saveEditRole} className="btn-primary flex-1 justify-center">Сохранить</button>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      )}
+
+      {/* Модалка добавления роли */}
+      {showAddRole && (
+        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4"
+          style={{ background:'rgba(0,0,0,0.85)', backdropFilter:'blur(8px)' }}>
+          <motion.div initial={{ scale:0.9,opacity:0 }} animate={{ scale:1,opacity:1 }}
+            className="w-full max-w-md rounded-2xl p-6"
+            style={{ background:'rgba(18,21,29,0.98)', border:'1px solid rgba(109,93,251,0.2)' }}>
+            <h3 className="font-manrope font-bold text-lg mb-5">+ Добавить роль</h3>
+
+            {/* Превью */}
+            <div className="flex items-center justify-center mb-5 p-4 rounded-xl"
+              style={{ background:'rgba(255,255,255,0.03)', border:'1px solid rgba(255,255,255,0.06)' }}>
+              <span className="text-sm px-4 py-2 rounded-full font-semibold"
+                style={{ background: newRoleColor + '22', color: newRoleColor, border: `1px solid ${newRoleColor}44` }}>
+                {newRoleIcon} {newRoleName || 'Новая роль'}
+              </span>
+            </div>
+
+            <div className="flex flex-col gap-4">
+              <div>
+                <label className="text-xs font-medium mb-1.5 block" style={{ color:'#A9B0C2' }}>ID роли (латиница, без пробелов)</label>
+                <input value={newRoleId} onChange={e=>setNewRoleId(e.target.value.replace(/\s/g,''))}
+                  placeholder="VIP, Donator, Helper..." className="w-full rounded-xl px-4 py-2.5 text-sm outline-none font-mono"
+                  style={{ background:'rgba(255,255,255,0.04)', border:'1px solid rgba(255,255,255,0.08)', color:'#fff' }} />
+              </div>
+              <div>
+                <label className="text-xs font-medium mb-1.5 block" style={{ color:'#A9B0C2' }}>Иконка</label>
+                <input value={newRoleIcon} onChange={e=>setNewRoleIcon(e.target.value)} maxLength={4}
+                  placeholder="🎮" className="w-full rounded-xl px-4 py-2.5 text-sm outline-none"
+                  style={{ background:'rgba(255,255,255,0.04)', border:'1px solid rgba(255,255,255,0.08)', color:'#fff' }} />
+              </div>
+              <div>
+                <label className="text-xs font-medium mb-1.5 block" style={{ color:'#A9B0C2' }}>Название</label>
+                <input value={newRoleName} onChange={e=>setNewRoleName(e.target.value)}
+                  placeholder="Название роли" className="w-full rounded-xl px-4 py-2.5 text-sm outline-none"
+                  style={{ background:'rgba(255,255,255,0.04)', border:'1px solid rgba(255,255,255,0.08)', color:'#fff' }} />
+              </div>
+              <div>
+                <label className="text-xs font-medium mb-1.5 block" style={{ color:'#A9B0C2' }}>Цвет</label>
+                <div className="flex gap-3 items-center">
+                  <input value={newRoleColor} onChange={e=>setNewRoleColor(e.target.value)}
+                    placeholder="#60a5fa" className="flex-1 rounded-xl px-4 py-2.5 text-sm outline-none font-mono"
+                    style={{ background:'rgba(255,255,255,0.04)', border:'1px solid rgba(255,255,255,0.08)', color:'#fff' }} />
+                  <input type="color" value={newRoleColor} onChange={e=>setNewRoleColor(e.target.value)}
+                    className="w-12 h-10 rounded-xl cursor-pointer border-0 p-0.5"
+                    style={{ background:'transparent' }} />
+                </div>
+                <div className="flex gap-2 mt-2 flex-wrap">
+                  {['#f472b6','#a78bfa','#60a5fa','#34d399','#fb923c','#facc15','#f87171','#e879f9'].map(c => (
+                    <button key={c} onClick={()=>setNewRoleColor(c)}
+                      className="w-7 h-7 rounded-full border-2 transition-transform hover:scale-110"
+                      style={{ background:c, borderColor: newRoleColor===c ? '#fff' : 'transparent' }} />
+                  ))}
+                </div>
+              </div>
+              <div className="flex gap-3 mt-2">
+                <button onClick={()=>setShowAddRole(false)} className="btn-secondary flex-1 justify-center">Отмена</button>
+                <button onClick={addRole} className="btn-primary flex-1 justify-center">Создать</button>
               </div>
             </div>
           </motion.div>
