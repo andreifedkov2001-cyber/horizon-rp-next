@@ -3,7 +3,6 @@ import Head from 'next/head'
 import Header from '../components/Header'
 import Hero from '../components/Hero'
 import Features from '../components/Features'
-import Stats from '../components/Stats'
 import News from '../components/News'
 import Footer from '../components/Footer'
 
@@ -19,7 +18,6 @@ const Home: NextPage = () => (
       <main>
         <Hero />
         <Features />
-        <Stats />
         <News />
       </main>
       <Footer />
