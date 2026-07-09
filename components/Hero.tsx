@@ -65,7 +65,7 @@ export default function Hero() {
 
         <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.45 }}
           className="text-lg md:text-xl mb-10 max-w-2xl mx-auto" style={{ color: '#A9B0C2' }}>
-          GTA V RolePlay сервер нового поколения. Реальная экономика, живой город и тысячи уникальных историй.
+          Horizon RP: мир, где прошлое и будущее сплелись в Role Play! Погрузитесь в захватывающую атмосферу, вдохновлённую Horizon! Создайте своего персонажа — охотника, изобретателя, вождя или изгоя. Пропишите его историю, цели и мотивы.
         </motion.p>
 
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 }}
