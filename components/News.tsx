@@ -27,7 +27,10 @@ export default function News() {
       const stored = localStorage.getItem('hrp_news')
       if (stored) {
         const parsed = JSON.parse(stored)
-        if (Array.isArray(parsed) && parsed.length > 0) setNews(parsed)
+        if (Array.isArray(parsed)) setNews(parsed)
+      } else {
+        // При первом запуске сохраняем дефолтные новости в localStorage
+        localStorage.setItem('hrp_news', JSON.stringify(DEFAULT_NEWS))
       }
     } catch {}
   }, [])
