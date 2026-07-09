@@ -1,0 +1,123 @@
+import type { NextPage } from 'next'
+import Head from 'next/head'
+import { useState, useEffect } from 'react'
+import { motion } from 'framer-motion'
+import Header from '../components/Header'
+import Footer from '../components/Footer'
+
+interface NewsItem {
+  id: string
+  tag: string
+  tagColor: string
+  date: string
+  title: string
+  desc: string
+}
+
+const DEFAULT_NEWS: NewsItem[] = [
+  { id: 'n1', tag: 'Обновление', tagColor: '#a78bfa', date: '5 июля 2024',  title: 'Обновление 3.0 — Новые районы и профессии', desc: 'Добавлены 3 новых района, 47 автомобилей, 5 профессий и полностью переработана система полиции.' },
+  { id: 'n2', tag: 'Событие',    tagColor: '#67e8f9', date: '1 июля 2024',   title: 'Летний фестиваль — призы и турниры',           desc: 'Весь июль проходит летний фестиваль с гонками, турнирами и уникальными наградами.' },
+  { id: 'n3', tag: 'Патч',       tagColor: '#6ee7b7', date: '28 июня 2024',  title: 'Патч 2.9.5 — Исправления и оптимизация',        desc: 'Исправлены критические баги, улучшена производительность сервера.' },
+]
+
+const NewsPage: NextPage = () => {
+  const [news, setNews] = useState<NewsItem[]>(DEFAULT_NEWS)
+  const [search, setSearch] = useState('')
+
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem('hrp_news')
+      if (stored) {
+        const parsed = JSON.parse(stored)
+        if (Array.isArray(parsed)) setNews(parsed)
+      } else {
+        localStorage.setItem('hrp_news', JSON.stringify(DEFAULT_NEWS))
+      }
+    } catch {}
+  }, [])
+
+  const filtered = news.filter(n =>
+    !search ||
+    n.title.toLowerCase().includes(search.toLowerCase()) ||
+    n.tag.toLowerCase().includes(search.toLowerCase())
+  )
+
+  return (
+    <>
+      <Head><title>Новости — Horizon RP</title></Head>
+      <div className="min-h-screen" style={{ background: '#090B10' }}>
+        <Header />
+
+        {/* Hero */}
+        <section className="pt-24 pb-12 relative"
+          style={{ background: 'linear-gradient(135deg,#090B10 0%,#12151D 100%)', borderBottom: '1px solid rgba(109,93,251,0.1)' }}>
+          <div className="max-w-5xl mx-auto px-6 text-center">
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full mb-4"
+                style={{ background: 'rgba(109,93,251,0.1)', border: '1px solid rgba(109,93,251,0.2)' }}>
+                <span className="text-sm font-semibold gradient-text">Последние события</span>
+              </div>
+              <h1 className="section-title mb-3">Новости <span className="gradient-text">Horizon RP</span></h1>
+              <p style={{ color: '#A9B0C2' }}>Следи за обновлениями, событиями и патчами сервера</p>
+            </motion.div>
+          </div>
+        </section>
+
+        <main className="max-w-6xl mx-auto px-6 py-12">
+          {/* Поиск */}
+          <div className="flex items-center gap-3 mb-10 max-w-md">
+            <div className="flex-1 flex items-center gap-3 px-4 py-3 rounded-xl"
+              style={{ background: 'rgba(18,21,29,0.8)', border: '1px solid rgba(255,255,255,0.07)' }}>
+              <svg className="w-4 h-4 flex-shrink-0" style={{ color: '#A9B0C2' }} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+              </svg>
+              <input value={search} onChange={e => setSearch(e.target.value)}
+                placeholder="Поиск по новостям..."
+                className="bg-transparent outline-none text-sm w-full text-white placeholder-gray-500" />
+            </div>
+          </div>
+
+          {/* Список новостей */}
+          {filtered.length === 0 ? (
+            <div className="text-center py-20">
+              <div className="text-5xl mb-4 opacity-40">📰</div>
+              <p style={{ color: '#A9B0C2' }}>Новостей пока нет</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+              {filtered.map((n, i) => (
+                <motion.article key={n.id}
+                  initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: i * 0.07 }}
+                  className="glass-card overflow-hidden cursor-pointer">
+                  <div className="h-1 w-full" style={{ background: `linear-gradient(90deg, ${n.tagColor}, transparent)` }} />
+                  <div className="p-6">
+                    <div className="flex items-center justify-between mb-4">
+                      <span className="text-xs font-semibold px-3 py-1 rounded-full"
+                        style={{ background: n.tagColor + '22', color: n.tagColor, border: `1px solid ${n.tagColor}44` }}>
+                        {n.tag}
+                      </span>
+                      <span className="text-xs" style={{ color: '#A9B0C2' }}>{n.date}</span>
+                    </div>
+                    <h3 className="font-manrope font-bold text-base mb-3 leading-snug">{n.title}</h3>
+                    <p className="text-sm leading-relaxed mb-4" style={{ color: '#A9B0C2' }}>{n.desc}</p>
+                    <div className="flex items-center gap-1 text-sm font-medium" style={{ color: '#6D5DFB' }}>
+                      Читать далее
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                        <path d="M5 12h14M12 5l7 7-7 7"/>
+                      </svg>
+                    </div>
+                  </div>
+                </motion.article>
+              ))}
+            </div>
+          )}
+        </main>
+
+        <Footer />
+      </div>
+    </>
+  )
+}
+
+export default NewsPage
