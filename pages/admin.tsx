@@ -242,8 +242,8 @@ const Admin: NextPage = () => {
                     <button onClick={()=>setCfg(p=>({...p,regOpen:!p.regOpen}))}
                       className="w-11 h-6 rounded-full relative transition-colors"
                       style={{ background: cfg.regOpen ? '#6D5DFB' : 'rgba(255,255,255,0.1)' }}>
-                      <span className="absolute top-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform"
-                        style={{ transform: cfg.regOpen ? 'translateX(20px)' : 'translateX(2px)' }} />
+                      <span className="absolute top-0.5 w-5 h-5 rounded-full bg-white shadow transition-all duration-200"
+                        style={{ left: cfg.regOpen ? '22px' : '2px' }} />
                     </button>
                   </div>
                   <button onClick={()=>{ ls.set('hrp_settings',cfg); addLog('admin',`${user.nick} обновил настройки`) }}
