@@ -48,15 +48,6 @@ export default function Hero() {
       <canvas ref={canvasRef} className="absolute inset-0 pointer-events-none" />
 
       <div className="relative z-10 text-center px-6 max-w-5xl mx-auto pt-20">
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-full mb-8"
-          style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }}>
-          <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
-          <span className="text-sm" style={{ color: '#A9B0C2' }}>Онлайн:</span>
-          <span className="text-sm font-bold text-green-400">{online.toLocaleString('ru-RU')}</span>
-          <span className="text-sm" style={{ color: '#A9B0C2' }}>игроков</span>
-        </motion.div>
-
         <motion.h1 initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3, duration: 0.7 }}
           className="font-manrope font-black mb-6" style={{ fontSize: 'clamp(2.5rem,7vw,5.5rem)', lineHeight: 1.1 }}>
           Живи своей <span className="gradient-text">историей</span>
