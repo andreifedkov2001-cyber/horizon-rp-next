@@ -74,10 +74,10 @@ export default function Hero() {
             <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
             Начать играть
           </button>
-          <button className="btn-secondary text-base px-8 py-4">
+          <a href="https://rage.mp/ru" target="_blank" rel="noopener noreferrer" className="btn-secondary text-base px-8 py-4">
             <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
             Скачать лаунчер
-          </button>
+          </a>
         </motion.div>
 
 
