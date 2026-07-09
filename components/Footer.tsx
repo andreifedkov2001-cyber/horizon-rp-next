@@ -4,15 +4,7 @@ export default function Footer() {
   return (
     <footer style={{ borderTop: '1px solid rgba(109,93,251,0.1)', background: '#090B10' }}>
       <div className="max-w-7xl mx-auto px-6 py-16">
-        <div className="text-center mb-12">
-          <h2 className="section-title mb-3">Готов начать своё <span className="gradient-text">приключение?</span></h2>
-          <p className="mb-6" style={{ color: '#A9B0C2' }}>Регистрация бесплатная. Тысячи игроков ждут тебя.</p>
-          <div className="flex flex-wrap justify-center gap-4">
-            <button className="btn-primary px-8 py-3.5">▶ Начать играть</button>
-            <button className="btn-secondary px-8 py-3.5">↓ Скачать лаунчер</button>
-          </div>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-10 mb-10" style={{ borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '40px' }}>
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-10 mb-10">
           <div className="md:col-span-1">
             <div className="flex items-center gap-2 mb-4">
               <div className="w-8 h-8 rounded-lg flex items-center justify-center font-black text-sm text-white"
