@@ -108,6 +108,13 @@ const Admin: NextPage = () => {
     addLog('admin', `${user.nick} изменил роль "${rName}"`)
     setEditRole(null)
   }
+  const moveRole = (idx: number, dir: -1 | 1) => {
+    const next = [...roles]
+    const newIdx = idx + dir
+    if (newIdx < 0 || newIdx >= next.length) return
+    ;[next[idx], next[newIdx]] = [next[newIdx], next[idx]]
+    saveRoles(next)
+  }
   const addRole = () => {
     if (!newRoleId.trim() || !newRoleName.trim()) return
     if (roles.find(r => r.id === newRoleId)) return
@@ -237,8 +244,22 @@ const Admin: NextPage = () => {
                 <button onClick={()=>setShowAddRole(true)} className="btn-primary text-sm px-5 py-2.5">+ Добавить роль</button>
               </div>
               <div className="glass-card overflow-hidden">
-                {roles.map(r => (
+                {roles.map((r, idx) => (
                   <div key={r.id} className="flex items-center gap-4 px-5 py-4 flex-wrap" style={{ borderBottom:'1px solid rgba(255,255,255,0.05)' }}>
+                    {/* Кнопки приоритета */}
+                    <div className="flex flex-col gap-1 flex-shrink-0">
+                      <button onClick={()=>moveRole(idx,-1)} disabled={idx===0}
+                        className="w-7 h-7 rounded-lg flex items-center justify-center text-xs transition-all disabled:opacity-25"
+                        style={{ background:'rgba(255,255,255,0.06)', border:'1px solid rgba(255,255,255,0.1)', color:'#A9B0C2' }}
+                        title="Выше">↑</button>
+                      <button onClick={()=>moveRole(idx,1)} disabled={idx===roles.length-1}
+                        className="w-7 h-7 rounded-lg flex items-center justify-center text-xs transition-all disabled:opacity-25"
+                        style={{ background:'rgba(255,255,255,0.06)', border:'1px solid rgba(255,255,255,0.1)', color:'#A9B0C2' }}
+                        title="Ниже">↓</button>
+                    </div>
+                    {/* Номер приоритета */}
+                    <div className="w-6 text-center font-manrope font-black text-lg flex-shrink-0"
+                      style={{ color: '#6D5DFB', opacity: 0.4 }}>{idx + 1}</div>
                     <div className="text-2xl flex-shrink-0">{r.icon}</div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
