@@ -9,6 +9,7 @@ import { useAuth } from '../context/AuthContext'
 interface User { id: string; nick: string; email: string; role: string; joined: string; banned?: boolean }
 interface Log  { time: string; type: 'auth'|'forum'|'admin'; text: string }
 interface Role { id: string; name: string; color: string; icon: string }
+interface News { id: string; tag: string; tagColor: string; date: string; title: string; desc: string }
 
 const ls = {
   get: (k: string, fb: any = []) => { try { return JSON.parse(localStorage.getItem(k)||'null')??fb } catch { return fb } },
@@ -24,7 +25,7 @@ const ROLE_COLORS: Record<string,{ bg:string; color:string }> = {
 const Admin: NextPage = () => {
   const { user } = useAuth()
   const router   = useRouter()
-  const [tab, setTab]   = useState<'stats'|'users'|'roles'|'logs'|'settings'>('stats')
+  const [tab, setTab]   = useState<'stats'|'users'|'roles'|'news'|'logs'|'settings'>('stats')
   const [users, setUsers]     = useState<User[]>([])
   const [logs, setLogs]       = useState<Log[]>([])
   const [uSearch, setUSearch] = useState('')
@@ -34,6 +35,21 @@ const Admin: NextPage = () => {
   const [eRole, setERole]     = useState('')
   const [eBan, setEBan]       = useState(false)
   const [cfg, setCfg]         = useState({ forumName: 'Horizon RP Forum', perPage: 15, regOpen: true })
+
+  // Новости
+  const DEFAULT_NEWS: News[] = [
+    { id: 'n1', tag: 'Обновление', tagColor: '#a78bfa', date: '5 июля 2024', title: 'Обновление 3.0 — Новые районы и профессии', desc: 'Добавлены 3 новых района, 47 автомобилей, 5 профессий и полностью переработана система полиции.' },
+    { id: 'n2', tag: 'Событие',    tagColor: '#67e8f9', date: '1 июля 2024',  title: 'Летний фестиваль — призы и турниры',           desc: 'Весь июль проходит летний фестиваль с гонками, турнирами и уникальными наградами.' },
+    { id: 'n3', tag: 'Патч',       tagColor: '#6ee7b7', date: '28 июня 2024', title: 'Патч 2.9.5 — Исправления и оптимизация',        desc: 'Исправлены критические баги, улучшена производительность сервера.' },
+  ]
+  const [news, setNews]           = useState<News[]>(DEFAULT_NEWS)
+  const [showAddNews, setShowAddNews] = useState(false)
+  const [editNews, setEditNews]       = useState<News|null>(null)
+  const [nTag, setNTag]     = useState('')
+  const [nTagColor, setNTagColor] = useState('#a78bfa')
+  const [nDate, setNDate]   = useState('')
+  const [nTitle, setNTitle] = useState('')
+  const [nDesc, setNDesc]   = useState('')
 
   // Роли
   const DEFAULT_ROLES: Role[] = [
@@ -60,6 +76,7 @@ const Admin: NextPage = () => {
     setLogs([...ls.get('hrp_logs', [])].reverse())
     const c = ls.get('hrp_settings', null); if (c) setCfg(c)
     const r = ls.get('hrp_roles', null); if (r) setRoles(r)
+    const n = ls.get('hrp_news', null); if (n) setNews(n)
   }, [])
 
   if (!user || (user.role !== 'Admin' && user.role !== 'Moder')) return (
@@ -97,6 +114,29 @@ const Admin: NextPage = () => {
 
   const fUsers = users.filter(u => !uSearch || u.nick.toLowerCase().includes(uSearch.toLowerCase()) || u.email.toLowerCase().includes(uSearch.toLowerCase()))
   const fLogs  = logs.filter(l => (!lSearch || l.text.toLowerCase().includes(lSearch.toLowerCase())) && (!lType || l.type === lType))
+
+  // Функции новостей
+  const saveNews = (n: News[]) => { setNews(n); ls.set('hrp_news', n) }
+  const openEditNews = (n: News) => { setEditNews(n); setNTag(n.tag); setNTagColor(n.tagColor); setNDate(n.date); setNTitle(n.title); setNDesc(n.desc) }
+  const saveEditNews = () => {
+    if (!editNews) return
+    const next = news.map(n => n.id === editNews.id ? { ...n, tag: nTag, tagColor: nTagColor, date: nDate, title: nTitle, desc: nDesc } : n)
+    saveNews(next)
+    addLog('admin', `${user.nick} обновил новость "${nTitle}"`)
+    setEditNews(null)
+  }
+  const deleteNews = (id: string) => {
+    saveNews(news.filter(n => n.id !== id))
+    addLog('admin', `${user.nick} удалил новость`)
+  }
+  const addNews = () => {
+    if (!nTitle.trim()) return
+    const n: News = { id: 'n' + Date.now(), tag: nTag || 'Новость', tagColor: nTagColor, date: nDate || new Date().toLocaleDateString('ru-RU'), title: nTitle, desc: nDesc }
+    saveNews([n, ...news])
+    addLog('admin', `${user.nick} опубликовал новость "${nTitle}"`)
+    setShowAddNews(false); setNTag(''); setNTagColor('#a78bfa'); setNDate(''); setNTitle(''); setNDesc('')
+  }
+  const resetNewsForm = () => { setNTag(''); setNTagColor('#a78bfa'); setNDate(''); setNTitle(''); setNDesc('') }
 
   // Функции ролей
   const saveRoles = (r: Role[]) => { setRoles(r); ls.set('hrp_roles', r) }
@@ -136,7 +176,7 @@ const Admin: NextPage = () => {
     return { bg: hex + '22', color: hex }
   }
 
-  const TABS = [{ id:'stats',label:'📊 Статистика'},{id:'users',label:'👥 Пользователи'},{id:'roles',label:'🏷️ Роли'},{id:'logs',label:'📋 Логи'},{id:'settings',label:'⚙️ Настройки'}] as const
+  const TABS = [{ id:'stats',label:'📊 Статистика'},{id:'users',label:'👥 Пользователи'},{id:'roles',label:'🏷️ Роли'},{id:'news',label:'📰 Новости'},{id:'logs',label:'📋 Логи'},{id:'settings',label:'⚙️ Настройки'}] as const
 
   const inputStyle = { background:'rgba(255,255,255,0.04)', border:'1px solid rgba(255,255,255,0.08)', color:'#fff' }
   const logTypeStyle = (t: string) => {
@@ -299,6 +339,50 @@ const Admin: NextPage = () => {
             </motion.div>
           )}
 
+          {/* НОВОСТИ */}
+          {tab==='news' && (
+            <motion.div initial={{ opacity:0 }} animate={{ opacity:1 }}>
+              <div className="flex gap-3 mb-5 flex-wrap items-center">
+                <h2 className="font-manrope font-bold text-lg flex-1">Всего новостей: {news.length}</h2>
+                <button onClick={()=>{ resetNewsForm(); setShowAddNews(true) }} className="btn-primary text-sm px-5 py-2.5">
+                  + Добавить новость
+                </button>
+              </div>
+              <div className="flex flex-col gap-4">
+                {news.length === 0 && (
+                  <div className="glass-card p-10 text-center" style={{ color:'#A9B0C2' }}>Новостей пока нет</div>
+                )}
+                {news.map((n, i) => (
+                  <div key={n.id} className="glass-card p-5 flex gap-4 items-start">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-2 flex-wrap">
+                        <span className="text-xs font-semibold px-3 py-1 rounded-full"
+                          style={{ background: n.tagColor + '22', color: n.tagColor, border: `1px solid ${n.tagColor}44` }}>
+                          {n.tag}
+                        </span>
+                        <span className="text-xs" style={{ color:'#A9B0C2' }}>{n.date}</span>
+                      </div>
+                      <div className="font-manrope font-bold text-base mb-1">{n.title}</div>
+                      <div className="text-sm leading-relaxed" style={{ color:'#A9B0C2' }}>{n.desc}</div>
+                    </div>
+                    <div className="flex flex-col gap-2 flex-shrink-0">
+                      <button onClick={()=>openEditNews(n)}
+                        className="text-xs px-3 py-1.5 rounded-lg transition-colors whitespace-nowrap"
+                        style={{ background:'rgba(109,93,251,0.1)', border:'1px solid rgba(109,93,251,0.3)', color:'#a78bfa' }}>
+                        ✏️ Изменить
+                      </button>
+                      <button onClick={()=>deleteNews(n.id)}
+                        className="text-xs px-3 py-1.5 rounded-lg transition-colors whitespace-nowrap"
+                        style={{ background:'rgba(248,113,113,0.1)', border:'1px solid rgba(248,113,113,0.25)', color:'#f87171' }}>
+                        🗑 Удалить
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+          )}
+
           {/* ЛОГИ */}
           {tab==='logs' && (
             <motion.div initial={{ opacity:0 }} animate={{ opacity:1 }}>
@@ -373,6 +457,62 @@ const Admin: NextPage = () => {
           )}
         </div>
       </div>
+
+      {/* Модалки новостей */}
+      {(showAddNews || editNews) && (
+        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4"
+          style={{ background:'rgba(0,0,0,0.85)', backdropFilter:'blur(8px)' }}>
+          <motion.div initial={{ scale:0.9,opacity:0 }} animate={{ scale:1,opacity:1 }}
+            className="w-full max-w-lg rounded-2xl p-6"
+            style={{ background:'rgba(18,21,29,0.98)', border:'1px solid rgba(109,93,251,0.2)' }}>
+            <h3 className="font-manrope font-bold text-lg mb-5">{showAddNews ? '📰 Новая новость' : '✏️ Редактировать новость'}</h3>
+            <div className="flex flex-col gap-4">
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs font-medium mb-1.5 block" style={{ color:'#A9B0C2' }}>Тег</label>
+                  <input value={nTag} onChange={e=>setNTag(e.target.value)} placeholder="Обновление, Патч..."
+                    className="w-full rounded-xl px-4 py-2.5 text-sm outline-none text-white"
+                    style={{ background:'rgba(255,255,255,0.04)', border:'1px solid rgba(255,255,255,0.08)' }} />
+                </div>
+                <div>
+                  <label className="text-xs font-medium mb-1.5 block" style={{ color:'#A9B0C2' }}>Цвет тега</label>
+                  <div className="flex gap-2">
+                    <input value={nTagColor} onChange={e=>setNTagColor(e.target.value)}
+                      className="flex-1 rounded-xl px-3 py-2.5 text-sm outline-none font-mono text-white"
+                      style={{ background:'rgba(255,255,255,0.04)', border:'1px solid rgba(255,255,255,0.08)' }} />
+                    <input type="color" value={nTagColor} onChange={e=>setNTagColor(e.target.value)}
+                      className="w-10 h-10 rounded-lg cursor-pointer border-0 p-0.5" style={{ background:'transparent' }} />
+                  </div>
+                </div>
+              </div>
+              <div>
+                <label className="text-xs font-medium mb-1.5 block" style={{ color:'#A9B0C2' }}>Дата</label>
+                <input value={nDate} onChange={e=>setNDate(e.target.value)} placeholder="5 июля 2024"
+                  className="w-full rounded-xl px-4 py-2.5 text-sm outline-none text-white"
+                  style={{ background:'rgba(255,255,255,0.04)', border:'1px solid rgba(255,255,255,0.08)' }} />
+              </div>
+              <div>
+                <label className="text-xs font-medium mb-1.5 block" style={{ color:'#A9B0C2' }}>Заголовок</label>
+                <input value={nTitle} onChange={e=>setNTitle(e.target.value)} placeholder="Заголовок новости..."
+                  className="w-full rounded-xl px-4 py-2.5 text-sm outline-none text-white"
+                  style={{ background:'rgba(255,255,255,0.04)', border:'1px solid rgba(255,255,255,0.08)' }} />
+              </div>
+              <div>
+                <label className="text-xs font-medium mb-1.5 block" style={{ color:'#A9B0C2' }}>Описание</label>
+                <textarea value={nDesc} onChange={e=>setNDesc(e.target.value)} rows={3} placeholder="Текст новости..."
+                  className="w-full rounded-xl px-4 py-2.5 text-sm outline-none text-white resize-none"
+                  style={{ background:'rgba(255,255,255,0.04)', border:'1px solid rgba(255,255,255,0.08)' }} />
+              </div>
+              <div className="flex gap-3">
+                <button onClick={()=>{ setShowAddNews(false); setEditNews(null) }} className="btn-secondary flex-1 justify-center">Отмена</button>
+                <button onClick={showAddNews ? addNews : saveEditNews} className="btn-primary flex-1 justify-center">
+                  {showAddNews ? 'Опубликовать' : 'Сохранить'}
+                </button>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      )}
 
       {/* Модалка редактирования */}
       {editU && (
