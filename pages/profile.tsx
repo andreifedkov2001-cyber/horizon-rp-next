@@ -1,6 +1,6 @@
 import type { NextPage } from 'next'
 import Head from 'next/head'
-import { useEffect } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/router'
 import { motion } from 'framer-motion'
 import Link from 'next/link'
@@ -11,6 +11,9 @@ import { useAuth } from '../context/AuthContext'
 const Profile: NextPage = () => {
   const { user, logout, openAuth } = useAuth()
   const router = useRouter()
+  const fileRef = useRef<HTMLInputElement>(null)
+  const [avatar, setAvatar] = useState<string | null>(null)
+  const [uploading, setUploading] = useState(false)
 
   useEffect(() => {
     if (typeof window === 'undefined') return
@@ -19,6 +22,53 @@ const Profile: NextPage = () => {
     }, 400)
     return () => clearTimeout(t)
   }, [user])
+
+  // Загружаем аватар пользователя
+  useEffect(() => {
+    if (!user) return
+    try {
+      const users = JSON.parse(localStorage.getItem('hrp_users') || '[]')
+      const u = users.find((x: any) => x.id === user.id)
+      if (u?.avatar) setAvatar(u.avatar)
+    } catch {}
+  }, [user])
+
+  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file || !user) return
+    if (file.size > 2 * 1024 * 1024) { alert('Файл слишком большой. Максимум 2MB.'); return }
+    setUploading(true)
+    const reader = new FileReader()
+    reader.onload = (ev) => {
+      const base64 = ev.target?.result as string
+      // Сохраняем в users
+      const users = JSON.parse(localStorage.getItem('hrp_users') || '[]')
+      const idx = users.findIndex((x: any) => x.id === user.id)
+      if (idx !== -1) {
+        users[idx].avatar = base64
+        localStorage.setItem('hrp_users', JSON.stringify(users))
+      }
+      // Обновляем сессию
+      const session = JSON.parse(localStorage.getItem('hrp_session') || 'null')
+      if (session) {
+        session.avatar = base64
+        localStorage.setItem('hrp_session', JSON.stringify(session))
+      }
+      setAvatar(base64)
+      setUploading(false)
+    }
+    reader.readAsDataURL(file)
+  }
+
+  const removeAvatar = () => {
+    if (!user) return
+    const users = JSON.parse(localStorage.getItem('hrp_users') || '[]')
+    const idx = users.findIndex((x: any) => x.id === user.id)
+    if (idx !== -1) { delete users[idx].avatar; localStorage.setItem('hrp_users', JSON.stringify(users)) }
+    const session = JSON.parse(localStorage.getItem('hrp_session') || 'null')
+    if (session) { delete session.avatar; localStorage.setItem('hrp_session', JSON.stringify(session)) }
+    setAvatar(null)
+  }
 
   if (!user) return (
     <div className="min-h-screen flex items-center justify-center" style={{ background: '#090B10' }}>
@@ -43,11 +93,38 @@ const Profile: NextPage = () => {
         {/* Аватар + инфо */}
         <div className="max-w-5xl mx-auto px-6">
           <div className="flex flex-col sm:flex-row items-start sm:items-end gap-4 -mt-14 mb-8">
-            <motion.div initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
-              className="w-24 h-24 rounded-2xl flex items-center justify-center font-black text-4xl text-white flex-shrink-0"
-              style={{ background: 'linear-gradient(135deg,#6D5DFB,#00D2FF)', border: '4px solid #090B10' }}>
-              {user.nick[0].toUpperCase()}
-            </motion.div>
+
+            {/* Аватар с кнопкой загрузки */}
+            <div className="relative flex-shrink-0 group">
+              <motion.div initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
+                className="w-24 h-24 rounded-2xl overflow-hidden flex items-center justify-center font-black text-4xl text-white"
+                style={{ border: '4px solid #090B10', background: avatar ? 'transparent' : 'linear-gradient(135deg,#6D5DFB,#00D2FF)' }}>
+                {avatar
+                  ? <img src={avatar} alt="avatar" className="w-full h-full object-cover" />
+                  : user.nick[0].toUpperCase()
+                }
+              </motion.div>
+
+              {/* Оверлей при наведении */}
+              <button
+                onClick={() => fileRef.current?.click()}
+                className="absolute inset-0 rounded-2xl flex flex-col items-center justify-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                style={{ background: 'rgba(0,0,0,0.65)', border: '4px solid #090B10' }}
+                title="Сменить аватарку">
+                {uploading
+                  ? <svg className="animate-spin w-6 h-6 text-white" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>
+                  : <>
+                      <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/>
+                      </svg>
+                      <span className="text-white text-xs font-semibold">Загрузить</span>
+                    </>
+                }
+              </button>
+
+              <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleAvatarChange} />
+            </div>
+
             <div className="flex-1">
               <h1 className="font-manrope font-black text-3xl">{user.nick}</h1>
               <div className="flex flex-wrap items-center gap-2 mt-1">
@@ -57,9 +134,26 @@ const Profile: NextPage = () => {
                 </span>
                 <span className="text-sm" style={{ color: '#A9B0C2' }}>Зарегистрирован: {user.joined}</span>
               </div>
+              {/* Кнопки управления аватаром */}
+              <div className="flex gap-2 mt-3 flex-wrap">
+                <button onClick={() => fileRef.current?.click()}
+                  className="text-xs px-3 py-1.5 rounded-lg font-medium transition-all"
+                  style={{ background: 'rgba(109,93,251,0.1)', border: '1px solid rgba(109,93,251,0.3)', color: '#a78bfa' }}>
+                  📷 {avatar ? 'Сменить фото' : 'Загрузить фото'}
+                </button>
+                {avatar && (
+                  <button onClick={removeAvatar}
+                    className="text-xs px-3 py-1.5 rounded-lg font-medium transition-all"
+                    style={{ background: 'rgba(248,113,113,0.1)', border: '1px solid rgba(248,113,113,0.25)', color: '#f87171' }}>
+                    🗑 Удалить фото
+                  </button>
+                )}
+              </div>
             </div>
+
             <button onClick={() => { logout(); router.push('/') }}
-              className="btn-secondary text-sm py-2 px-5 flex-shrink-0" style={{ color: '#f87171', borderColor: 'rgba(248,113,113,0.3)' }}>
+              className="btn-secondary text-sm py-2 px-5 flex-shrink-0"
+              style={{ color: '#f87171', borderColor: 'rgba(248,113,113,0.3)' }}>
               🚪 Выйти
             </button>
           </div>
