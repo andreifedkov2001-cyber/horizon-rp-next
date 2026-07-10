@@ -48,6 +48,7 @@ const ls = {
 
 const ForumCat: NextPage = () => {
   const { catId } = useRouter().query as { catId: string }
+  const router = useRouter()
   const { user, openAuth } = useAuth()
   const [search, setSearch] = useState('')
   const [modal, setModal]   = useState(false)
@@ -169,7 +170,7 @@ const ForumCat: NextPage = () => {
                     style={{ background: 'linear-gradient(135deg,#6D5DFB,#00D2FF)' }}>
                     {(t.author || '?')[0].toUpperCase()}
                   </div>
-                  <div className="flex-1 min-w-0 cursor-pointer" onClick={() => {}}>
+                  <div className="flex-1 min-w-0 cursor-pointer" onClick={() => router.push(`/forum/topic/${t.id}`)}>
                     <div className="font-semibold text-sm group-hover:text-purple-400 transition-colors truncate">{t.title}</div>
                     <div className="flex items-center gap-2 mt-1 flex-wrap">
                       <span className="text-xs" style={{ color: '#A9B0C2' }}>{t.author}</span>
