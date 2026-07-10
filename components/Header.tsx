@@ -21,11 +21,16 @@ export default function Header() {
   // Загружаем аватар из localStorage
   useEffect(() => {
     if (!user) { setAvatar(null); return }
-    try {
-      const users = JSON.parse(localStorage.getItem('hrp_users') || '[]')
-      const u = users.find((x: any) => x.id === user.id)
-      setAvatar(u?.avatar || null)
-    } catch { setAvatar(null) }
+    const load = () => {
+      try {
+        const users = JSON.parse(localStorage.getItem('hrp_users') || '[]')
+        const u = users.find((x: any) => x.id === user.id)
+        setAvatar(u?.avatar || null)
+      } catch { setAvatar(null) }
+    }
+    load()
+    window.addEventListener('avatarUpdate', load)
+    return () => window.removeEventListener('avatarUpdate', load)
   }, [user])
 
   useEffect(() => {

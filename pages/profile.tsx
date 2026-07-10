@@ -56,6 +56,8 @@ const Profile: NextPage = () => {
       }
       setAvatar(base64)
       setUploading(false)
+      // Уведомляем Header об обновлении аватара
+      window.dispatchEvent(new Event('avatarUpdate'))
     }
     reader.readAsDataURL(file)
   }
