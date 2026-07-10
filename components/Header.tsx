@@ -15,7 +15,18 @@ export default function Header() {
   const [scrolled, setScrolled] = useState(false)
   const [menu, setMenu]         = useState(false)
   const [drop, setDrop]         = useState(false)
+  const [avatar, setAvatar]     = useState<string|null>(null)
   const { user, logout, openAuth } = useAuth()
+
+  // Загружаем аватар из localStorage
+  useEffect(() => {
+    if (!user) { setAvatar(null); return }
+    try {
+      const users = JSON.parse(localStorage.getItem('hrp_users') || '[]')
+      const u = users.find((x: any) => x.id === user.id)
+      setAvatar(u?.avatar || null)
+    } catch { setAvatar(null) }
+  }, [user])
 
   useEffect(() => {
     const h = () => setScrolled(window.scrollY > 40)
@@ -64,9 +75,12 @@ export default function Header() {
             <div className="relative" onClick={e => { e.stopPropagation(); setDrop(v => !v) }}>
               <button className="flex items-center gap-2 px-3 py-2 rounded-xl transition-all"
                 style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}>
-                <div className="w-7 h-7 rounded-lg flex items-center justify-center font-black text-sm text-white"
-                  style={{ background: 'linear-gradient(135deg,#6D5DFB,#00D2FF)' }}>
-                  {user.nick[0].toUpperCase()}
+                <div className="w-7 h-7 rounded-lg overflow-hidden flex items-center justify-center font-black text-sm text-white flex-shrink-0"
+                  style={{ background: avatar ? 'transparent' : 'linear-gradient(135deg,#6D5DFB,#00D2FF)' }}>
+                  {avatar
+                    ? <img src={avatar} alt="avatar" className="w-full h-full object-cover" />
+                    : user.nick[0].toUpperCase()
+                  }
                 </div>
                 <span className="text-sm font-medium">{user.nick}</span>
                 <svg className={`w-4 h-4 transition-transform ${drop ? 'rotate-180' : ''}`} style={{ color: '#A9B0C2' }}
