@@ -2,13 +2,13 @@ import Link from 'next/link'
 
 export default function Footer() {
   return (
-    <footer style={{ borderTop: '1px solid rgba(109,93,251,0.1)', background: '#090B10' }}>
+    <footer style={{ borderTop: '1px solid rgba(124,58,237,0.1)', background: '#0a0a0f' }}>
       <div className="max-w-7xl mx-auto px-6 py-16">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-10 mb-10">
           <div className="md:col-span-1">
             <div className="flex items-center gap-2 mb-4">
               <div className="w-8 h-8 rounded-lg flex items-center justify-center font-black text-sm text-white"
-                style={{ background: 'linear-gradient(135deg,#6D5DFB,#00D2FF)' }}>H</div>
+                style={{ background: 'linear-gradient(135deg,#7c3aed,#5b21b6)' }}>H</div>
               <span className="font-manrope font-black text-xl">HORIZON<span className="gradient-text">RP</span></span>
             </div>
             <p className="text-sm leading-relaxed mb-5" style={{ color: '#A9B0C2' }}>GTA V RolePlay сервер нового поколения. Живи своей историей.</p>
@@ -24,7 +24,7 @@ export default function Footer() {
                 <a key={s.title} href={s.href} target="_blank" rel="noopener noreferrer" title={s.title}
                   className="w-8 h-8 rounded-lg flex items-center justify-center transition-all"
                   style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', color: '#A9B0C2' }}
-                  onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = '#fff'; (e.currentTarget as HTMLElement).style.borderColor = 'rgba(109,93,251,0.4)'; (e.currentTarget as HTMLElement).style.background = 'rgba(109,93,251,0.1)' }}
+                  onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = '#fff'; (e.currentTarget as HTMLElement).style.borderColor = 'rgba(124,58,237,0.4)'; (e.currentTarget as HTMLElement).style.background = 'rgba(124,58,237,0.1)' }}
                   onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = '#A9B0C2'; (e.currentTarget as HTMLElement).style.borderColor = 'rgba(255,255,255,0.08)'; (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.05)' }}>
                   {s.svg}
                 </a>

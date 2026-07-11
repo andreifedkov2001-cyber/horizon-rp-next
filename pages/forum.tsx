@@ -92,17 +92,17 @@ const Forum: NextPage = () => {
 
   const overlay = 'fixed inset-0 z-[200] flex items-center justify-center p-4'
   const modalBg = { background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(8px)' }
-  const modalCard = { background: 'rgba(18,21,29,0.98)', border: '1px solid rgba(109,93,251,0.2)' }
+  const modalCard = { background: 'rgba(18,21,29,0.98)', border: '1px solid rgba(124,58,237,0.2)' }
   const inp = { background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', color: '#fff' }
 
   return (
     <>
       <Head><title>Форум — Horizon RP</title></Head>
-      <div className="min-h-screen" style={{ background: '#090B10' }}>
+      <div className="min-h-screen" style={{ background: '#0a0a0f' }}>
         <Header />
 
         <section className="pt-24 pb-12 relative"
-          style={{ background: 'linear-gradient(135deg,#090B10 0%,#12151D 100%)', borderBottom: '1px solid rgba(109,93,251,0.1)' }}>
+          style={{ background: 'linear-gradient(135deg,#0a0a0f 0%,#0e0a18 100%)', borderBottom: '1px solid rgba(124,58,237,0.1)' }}>
           <div className="max-w-5xl mx-auto px-6 text-center">
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
               <h1 className="section-title mb-3">Форум <span className="gradient-text">Horizon RP</span></h1>
@@ -146,7 +146,7 @@ const Forum: NextPage = () => {
                     <div className="font-manrope font-bold text-base flex items-center gap-2 group-hover:text-purple-400 transition-colors">
                       {cat.name}
                       {cat.pinned && <span className="text-xs px-2 py-0.5 rounded-full font-semibold"
-                        style={{ background: 'rgba(109,93,251,0.15)', color: '#a78bfa', border: '1px solid rgba(109,93,251,0.3)' }}>Закреплено</span>}
+                        style={{ background: 'rgba(124,58,237,0.15)', color: '#a78bfa', border: '1px solid rgba(124,58,237,0.3)' }}>Закреплено</span>}
                     </div>
                     <div className="text-sm mt-0.5" style={{ color: '#A9B0C2' }}>{cat.desc}</div>
                   </Link>
@@ -156,7 +156,7 @@ const Forum: NextPage = () => {
                   {cat.subs ? (
                     <button onClick={() => toggle(cat.id)}
                       className="flex items-center gap-1 text-xs font-semibold flex-shrink-0 ml-2 transition-colors"
-                      style={{ color: '#6D5DFB' }}>
+                      style={{ color: '#7c3aed' }}>
                       Подразделы
                       <svg className={`w-4 h-4 transition-transform ${open[cat.id] ? 'rotate-180' : ''}`}
                         fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>

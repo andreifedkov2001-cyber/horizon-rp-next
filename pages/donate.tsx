@@ -29,10 +29,10 @@ const Donate: NextPage = () => {
   return (
     <>
       <Head><title>Донат — Horizon RP</title></Head>
-      <div className="min-h-screen" style={{ background: '#090B10' }}>
+      <div className="min-h-screen" style={{ background: '#0a0a0f' }}>
         <Header />
         <section className="pt-24 pb-12 relative"
-          style={{ background: 'linear-gradient(135deg,#090B10 0%,#12151D 100%)', borderBottom: '1px solid rgba(109,93,251,0.1)' }}>
+          style={{ background: 'linear-gradient(135deg,#0a0a0f 0%,#0e0a18 100%)', borderBottom: '1px solid rgba(124,58,237,0.1)' }}>
           <div className="max-w-5xl mx-auto px-6 text-center">
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
               <h1 className="section-title mb-3">Магазин <span className="gradient-text">доната</span></h1>
@@ -47,7 +47,7 @@ const Donate: NextPage = () => {
             {(['plans','shop'] as const).map(t => (
               <button key={t} onClick={() => setTab(t)}
                 className="px-8 py-2.5 rounded-xl text-sm font-semibold transition-all"
-                style={tab === t ? { background: 'linear-gradient(135deg,#6D5DFB,#00D2FF)', color: '#fff' } : { color: '#A9B0C2' }}>
+                style={tab === t ? { background: 'linear-gradient(135deg,#7c3aed,#5b21b6)', color: '#fff' } : { color: '#A9B0C2' }}>
                 {t === 'plans' ? '💎 Подписки' : '🛒 Магазин'}
               </button>
             ))}
@@ -58,10 +58,10 @@ const Donate: NextPage = () => {
               {PLANS.map((p, i) => (
                 <motion.div key={p.id} initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }}
                   className={`glass-card p-6 relative flex flex-col ${i === 1 ? 'md:scale-105 md:z-10' : ''}`}
-                  style={{ border: i === 1 ? '1px solid rgba(109,93,251,0.4)' : undefined }}>
+                  style={{ border: i === 1 ? '1px solid rgba(124,58,237,0.4)' : undefined }}>
                   {p.badge && (
                     <div className="absolute -top-3 left-1/2 -translate-x-1/2 text-xs font-bold px-4 py-1 rounded-full"
-                      style={{ background: 'linear-gradient(135deg,#6D5DFB,#00D2FF)', color: '#fff' }}>
+                      style={{ background: 'linear-gradient(135deg,#7c3aed,#5b21b6)', color: '#fff' }}>
                       {p.badge}
                     </div>
                   )}
@@ -69,12 +69,12 @@ const Donate: NextPage = () => {
                     <h3 className="font-manrope font-black text-2xl mb-2">{p.name}</h3>
                     <div className="font-manrope font-black text-5xl gradient-text mb-1">{p.price}₽</div>
                     <div className="text-sm" style={{ color: '#A9B0C2' }}>разово</div>
-                    <div className="mt-2 text-sm font-semibold" style={{ color: '#00D2FF' }}>+{p.coins.toLocaleString('ru-RU')} HorizonCoin</div>
+                    <div className="mt-2 text-sm font-semibold" style={{ color: '#a78bfa' }}>+{p.coins.toLocaleString('ru-RU')} HorizonCoin</div>
                   </div>
                   <ul className="space-y-2.5 mb-6 flex-1">
                     {p.perks.map((pk, j) => (
                       <li key={j} className="flex items-center gap-2 text-sm">
-                        <svg className="w-4 h-4 flex-shrink-0" style={{ color: '#6D5DFB' }} fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg>
+                        <svg className="w-4 h-4 flex-shrink-0" style={{ color: '#7c3aed' }} fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg>
                         <span style={{ color: '#A9B0C2' }}>{pk}</span>
                       </li>
                     ))}

@@ -13,7 +13,7 @@ const Home: NextPage = () => (
       <meta name="description" content="GTA V RolePlay сервер нового поколения. Реальная экономика, живой город." />
       <meta name="viewport" content="width=device-width, initial-scale=1" />
     </Head>
-    <div className="min-h-screen" style={{ background: '#090B10' }}>
+    <div className="min-h-screen" style={{ background: '#0a0a0f' }}>
       <Header />
       <main>
         <Hero />

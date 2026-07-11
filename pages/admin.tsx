@@ -81,7 +81,7 @@ const Admin: NextPage = () => {
   }, [])
 
   if (!user || (user.role !== 'Admin' && user.role !== 'Moder')) return (
-    <div className="min-h-screen flex flex-col items-center justify-center gap-4" style={{ background: '#090B10' }}>
+    <div className="min-h-screen flex flex-col items-center justify-center gap-4" style={{ background: '#0a0a0f' }}>
       <div className="text-6xl">🚫</div>
       <h1 className="font-manrope font-black text-2xl">Доступ запрещён</h1>
       <p className="text-sm" style={{ color: '#A9B0C2' }}>Только для администраторов</p>
@@ -189,9 +189,9 @@ const Admin: NextPage = () => {
   return (
     <>
       <Head><title>Админ панель — Horizon RP</title></Head>
-      <div className="min-h-screen" style={{ background: '#090B10' }}>
+      <div className="min-h-screen" style={{ background: '#0a0a0f' }}>
         <Header />
-        <section className="pt-24 pb-6" style={{ background:'linear-gradient(135deg,#090B10 0%,#12151D 100%)', borderBottom:'1px solid rgba(109,93,251,0.1)' }}>
+        <section className="pt-24 pb-6" style={{ background:'linear-gradient(135deg,#0a0a0f 0%,#0e0a18 100%)', borderBottom:'1px solid rgba(124,58,237,0.1)' }}>
           <div className="max-w-7xl mx-auto px-6">
             <motion.div initial={{ opacity:0, y:20 }} animate={{ opacity:1, y:0 }}>
               <h1 className="section-title mb-1">Админ <span className="gradient-text">панель</span></h1>
@@ -205,7 +205,7 @@ const Admin: NextPage = () => {
             {TABS.map(t => (
               <button key={t.id} onClick={() => setTab(t.id)}
                 className="px-5 py-2.5 rounded-xl text-sm font-semibold transition-all"
-                style={tab===t.id ? {background:'linear-gradient(135deg,#6D5DFB,#00D2FF)',color:'#fff'} : {background:'rgba(255,255,255,0.05)',border:'1px solid rgba(255,255,255,0.08)',color:'#A9B0C2'}}>
+                style={tab===t.id ? {background:'linear-gradient(135deg,#7c3aed,#5b21b6)',color:'#fff'} : {background:'rgba(255,255,255,0.05)',border:'1px solid rgba(255,255,255,0.08)',color:'#A9B0C2'}}>
                 {t.label}
               </button>
             ))}
@@ -250,7 +250,7 @@ const Admin: NextPage = () => {
                     onClick={()=>setUserSubTab(id)}
                     className="px-6 py-2 rounded-lg text-sm font-semibold transition-all"
                     style={userSubTab===id
-                      ? {background:'linear-gradient(135deg,#6D5DFB,#00D2FF)',color:'#fff'}
+                      ? {background:'linear-gradient(135deg,#7c3aed,#5b21b6)',color:'#fff'}
                       : {color:'#A9B0C2'}}>
                     {label}
                   </button>
@@ -280,7 +280,7 @@ const Admin: NextPage = () => {
                     <div key={u.id} className="flex items-center gap-3 px-5 py-3 flex-wrap"
                       style={{ borderBottom:'1px solid rgba(255,255,255,0.05)' }}>
                       <div className="w-9 h-9 rounded-xl flex items-center justify-center font-black text-sm text-white flex-shrink-0"
-                        style={{ background:'linear-gradient(135deg,#6D5DFB,#00D2FF)' }}>
+                        style={{ background:'linear-gradient(135deg,#7c3aed,#5b21b6)' }}>
                         {u.nick[0].toUpperCase()}
                       </div>
                       <div className="flex-1 min-w-0">
@@ -330,7 +330,7 @@ const Admin: NextPage = () => {
                       <div className="w-9 h-9 rounded-xl flex items-center justify-center font-black text-sm text-white flex-shrink-0"
                         style={{ background: u.role==='Admin'
                           ? 'linear-gradient(135deg,#f472b6,#e879f9)'
-                          : 'linear-gradient(135deg,#a78bfa,#6D5DFB)' }}>
+                          : 'linear-gradient(135deg,#a78bfa,#7c3aed)' }}>
                         {u.nick[0].toUpperCase()}
                       </div>
                       <div className="flex-1 min-w-0">
@@ -388,7 +388,7 @@ const Admin: NextPage = () => {
                     </div>
                     {/* Номер приоритета */}
                     <div className="w-6 text-center font-manrope font-black text-lg flex-shrink-0"
-                      style={{ color: '#6D5DFB', opacity: 0.4 }}>{idx + 1}</div>
+                      style={{ color: '#7c3aed', opacity: 0.4 }}>{idx + 1}</div>
                     <div className="text-2xl flex-shrink-0">{r.icon}</div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
@@ -411,7 +411,7 @@ const Admin: NextPage = () => {
                     <div className="flex gap-2 flex-shrink-0">
                       <button onClick={()=>openEditRole(r)}
                         className="text-xs px-3 py-1.5 rounded-lg transition-colors"
-                        style={{ background:'rgba(109,93,251,0.1)', border:'1px solid rgba(109,93,251,0.3)', color:'#a78bfa' }}>
+                        style={{ background:'rgba(124,58,237,0.1)', border:'1px solid rgba(124,58,237,0.3)', color:'#a78bfa' }}>
                         ✏️ Изменить
                       </button>
                       {!['Admin','Moder','Player'].includes(r.id) && (
@@ -457,7 +457,7 @@ const Admin: NextPage = () => {
                     <div className="flex flex-col gap-2 flex-shrink-0">
                       <button onClick={()=>openEditNews(n)}
                         className="text-xs px-3 py-1.5 rounded-lg transition-colors whitespace-nowrap"
-                        style={{ background:'rgba(109,93,251,0.1)', border:'1px solid rgba(109,93,251,0.3)', color:'#a78bfa' }}>
+                        style={{ background:'rgba(124,58,237,0.1)', border:'1px solid rgba(124,58,237,0.3)', color:'#a78bfa' }}>
                         ✏️ Изменить
                       </button>
                       <button onClick={()=>deleteNews(n.id)}
@@ -533,7 +533,7 @@ const Admin: NextPage = () => {
                     <span className="text-sm">Регистрация открыта</span>
                     <button onClick={()=>setCfg(p=>({...p,regOpen:!p.regOpen}))}
                       className="w-11 h-6 rounded-full relative transition-colors"
-                      style={{ background: cfg.regOpen ? '#6D5DFB' : 'rgba(255,255,255,0.1)' }}>
+                      style={{ background: cfg.regOpen ? '#7c3aed' : 'rgba(255,255,255,0.1)' }}>
                       <span className="absolute top-0.5 w-5 h-5 rounded-full bg-white shadow transition-all duration-200"
                         style={{ left: cfg.regOpen ? '22px' : '2px' }} />
                     </button>
@@ -553,7 +553,7 @@ const Admin: NextPage = () => {
           style={{ background:'rgba(0,0,0,0.85)', backdropFilter:'blur(8px)' }}>
           <motion.div initial={{ scale:0.9,opacity:0 }} animate={{ scale:1,opacity:1 }}
             className="w-full max-w-lg rounded-2xl p-6"
-            style={{ background:'rgba(18,21,29,0.98)', border:'1px solid rgba(109,93,251,0.2)' }}>
+            style={{ background:'rgba(18,21,29,0.98)', border:'1px solid rgba(124,58,237,0.2)' }}>
             <h3 className="font-manrope font-bold text-lg mb-5">{showAddNews ? '📰 Новая новость' : '✏️ Редактировать новость'}</h3>
             <div className="flex flex-col gap-4">
               <div className="grid grid-cols-2 gap-3">
@@ -609,7 +609,7 @@ const Admin: NextPage = () => {
           style={{ background:'rgba(0,0,0,0.8)', backdropFilter:'blur(8px)' }}>
           <motion.div initial={{ scale:0.9,opacity:0 }} animate={{ scale:1,opacity:1 }}
             className="w-full max-w-md rounded-2xl p-6"
-            style={{ background:'rgba(18,21,29,0.98)', border:'1px solid rgba(109,93,251,0.2)' }}>
+            style={{ background:'rgba(18,21,29,0.98)', border:'1px solid rgba(124,58,237,0.2)' }}>
             <h3 className="font-manrope font-bold text-lg mb-5">✏️ {editU.nick}</h3>
             <div className="flex flex-col gap-4">
               <div>
@@ -644,7 +644,7 @@ const Admin: NextPage = () => {
           style={{ background:'rgba(0,0,0,0.85)', backdropFilter:'blur(8px)' }}>
           <motion.div initial={{ scale:0.9,opacity:0 }} animate={{ scale:1,opacity:1 }}
             className="w-full max-w-md rounded-2xl p-6"
-            style={{ background:'rgba(18,21,29,0.98)', border:'1px solid rgba(109,93,251,0.2)' }}>
+            style={{ background:'rgba(18,21,29,0.98)', border:'1px solid rgba(124,58,237,0.2)' }}>
             <h3 className="font-manrope font-bold text-lg mb-5">✏️ Изменить роль</h3>
 
             {/* Превью */}
@@ -703,7 +703,7 @@ const Admin: NextPage = () => {
           style={{ background:'rgba(0,0,0,0.85)', backdropFilter:'blur(8px)' }}>
           <motion.div initial={{ scale:0.9,opacity:0 }} animate={{ scale:1,opacity:1 }}
             className="w-full max-w-md rounded-2xl p-6"
-            style={{ background:'rgba(18,21,29,0.98)', border:'1px solid rgba(109,93,251,0.2)' }}>
+            style={{ background:'rgba(18,21,29,0.98)', border:'1px solid rgba(124,58,237,0.2)' }}>
             <h3 className="font-manrope font-bold text-lg mb-5">+ Добавить роль</h3>
 
             {/* Превью */}

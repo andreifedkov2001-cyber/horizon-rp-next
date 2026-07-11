@@ -52,7 +52,7 @@ export default function AuthModal() {
           <motion.div initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.9, y: 20 }}
             onClick={e => e.stopPropagation()}
             className="w-full max-w-md rounded-2xl p-8 relative"
-            style={{ background: 'rgba(18,21,29,0.98)', border: '1px solid rgba(109,93,251,0.2)' }}>
+            style={{ background: 'rgba(18,21,29,0.98)', border: '1px solid rgba(124,58,237,0.2)' }}>
 
             <button onClick={closeAuth}
               className="absolute top-4 right-4 w-8 h-8 rounded-lg flex items-center justify-center text-gray-400 hover:text-white transition-colors"
@@ -60,7 +60,7 @@ export default function AuthModal() {
 
             <div className="text-center mb-6">
               <div className="w-12 h-12 rounded-xl mx-auto mb-3 flex items-center justify-center font-black text-xl text-white"
-                style={{ background: 'linear-gradient(135deg,#6D5DFB,#00D2FF)' }}>H</div>
+                style={{ background: 'linear-gradient(135deg,#7c3aed,#5b21b6)' }}>H</div>
               <div className="font-manrope font-black text-2xl">HORIZON<span className="gradient-text">RP</span></div>
             </div>
 
@@ -68,7 +68,7 @@ export default function AuthModal() {
               {(['login','register'] as const).map(t => (
                 <button key={t} onClick={() => { setTab(t); setErr('') }}
                   className="flex-1 py-2.5 rounded-lg text-sm font-semibold transition-all"
-                  style={tab === t ? { background: 'linear-gradient(135deg,#6D5DFB,#00D2FF)', color: '#fff' } : { color: '#A9B0C2' }}>
+                  style={tab === t ? { background: 'linear-gradient(135deg,#7c3aed,#5b21b6)', color: '#fff' } : { color: '#A9B0C2' }}>
                   {t === 'login' ? 'Войти' : 'Регистрация'}
                 </button>
               ))}
@@ -102,7 +102,7 @@ export default function AuthModal() {
               <p className="text-center text-xs" style={{ color: '#A9B0C2' }}>
                 {tab === 'login' ? 'Нет аккаунта? ' : 'Уже есть аккаунт? '}
                 <button onClick={() => { setTab(tab === 'login' ? 'register' : 'login'); setErr('') }}
-                  className="font-semibold" style={{ color: '#6D5DFB' }}>
+                  className="font-semibold" style={{ color: '#7c3aed' }}>
                   {tab === 'login' ? 'Зарегистрироваться' : 'Войти'}
                 </button>
               </p>

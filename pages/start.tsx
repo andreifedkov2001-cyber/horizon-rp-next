@@ -50,16 +50,16 @@ const STEPS = [
 const Start: NextPage = () => (
   <>
     <Head><title>Как зайти — Horizon RP</title></Head>
-    <div className="min-h-screen" style={{ background: '#090B10' }}>
+    <div className="min-h-screen" style={{ background: '#0a0a0f' }}>
       <Header />
 
       {/* Hero */}
       <section className="pt-24 pb-12 relative"
-        style={{ background: 'linear-gradient(135deg,#090B10 0%,#12151D 100%)', borderBottom: '1px solid rgba(109,93,251,0.1)' }}>
+        style={{ background: 'linear-gradient(135deg,#0a0a0f 0%,#0e0a18 100%)', borderBottom: '1px solid rgba(124,58,237,0.1)' }}>
         <div className="max-w-4xl mx-auto px-6 text-center">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full mb-4"
-              style={{ background: 'rgba(109,93,251,0.1)', border: '1px solid rgba(109,93,251,0.2)' }}>
+              style={{ background: 'rgba(124,58,237,0.1)', border: '1px solid rgba(124,58,237,0.2)' }}>
               <span className="text-sm font-semibold gradient-text">RAGE Multiplayer</span>
             </div>
             <h1 className="section-title mb-3">
@@ -82,7 +82,7 @@ const Start: NextPage = () => (
               <div className="flex flex-col md:flex-row gap-6">
                 {/* Номер + иконка */}
                 <div className="flex items-center gap-4 md:flex-col md:items-center md:w-20 flex-shrink-0">
-                  <div className="font-manrope font-black text-4xl" style={{ color: '#6D5DFB', opacity: 0.35 }}>{s.n}</div>
+                  <div className="font-manrope font-black text-4xl" style={{ color: '#7c3aed', opacity: 0.35 }}>{s.n}</div>
                   <div className="text-3xl">{s.icon}</div>
                 </div>
 
@@ -95,7 +95,7 @@ const Start: NextPage = () => (
                   <div className="flex flex-wrap gap-2 mb-4">
                     {s.info.map((inf, j) => (
                       <span key={j} className="flex items-center gap-1.5 text-sm px-3 py-1.5 rounded-xl font-medium"
-                        style={{ background: 'rgba(109,93,251,0.1)', border: '1px solid rgba(109,93,251,0.2)', color: '#c4b5fd' }}>
+                        style={{ background: 'rgba(124,58,237,0.1)', border: '1px solid rgba(124,58,237,0.2)', color: '#c4b5fd' }}>
                         {inf.icon} {inf.text}
                       </span>
                     ))}
@@ -130,7 +130,7 @@ const Start: NextPage = () => (
                 <ul className="space-y-2">
                   {card.items.map((item, j) => (
                     <li key={j} className="text-sm flex items-center justify-center gap-2" style={{ color: '#A9B0C2' }}>
-                      <span style={{ color: '#6D5DFB' }}>•</span> {item}
+                      <span style={{ color: '#7c3aed' }}>•</span> {item}
                     </li>
                   ))}
                 </ul>
@@ -142,7 +142,7 @@ const Start: NextPage = () => (
         {/* CTA */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 }}
           className="glass-card p-8 md:p-12 text-center"
-          style={{ background: 'linear-gradient(135deg, rgba(109,93,251,0.1) 0%, rgba(0,210,255,0.05) 100%)' }}>
+          style={{ background: 'linear-gradient(135deg, rgba(124,58,237,0.1) 0%, rgba(167,139,250,0.05) 100%)' }}>
           <h2 className="font-manrope font-black text-3xl md:text-4xl mb-3">
             Готов? <span className="gradient-text">Начинаем!</span>
           </h2>
@@ -160,7 +160,7 @@ const Start: NextPage = () => (
           <p className="mt-6 text-sm" style={{ color: '#A9B0C2' }}>
             Нужна помощь?{' '}
             <a href="https://discord.gg" target="_blank" rel="noopener noreferrer"
-              className="font-semibold" style={{ color: '#6D5DFB' }}>
+              className="font-semibold" style={{ color: '#7c3aed' }}>
               Зайди в наш Discord
             </a>
           </p>

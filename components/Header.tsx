@@ -51,13 +51,13 @@ export default function Header() {
   return (
     <motion.header initial={{ y: -70, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.5 }}
       className="fixed top-0 left-0 right-0 z-50 transition-all duration-300"
-      style={scrolled ? { background: 'rgba(9,11,16,0.95)', backdropFilter: 'blur(20px)', borderBottom: '1px solid rgba(109,93,251,0.1)' } : {}}>
+      style={scrolled ? { background: 'rgba(9,11,16,0.95)', backdropFilter: 'blur(20px)', borderBottom: '1px solid rgba(124,58,237,0.1)' } : {}}>
       <div className="max-w-7xl mx-auto px-6 h-16 flex items-center gap-6">
 
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2 flex-shrink-0">
           <div className="w-8 h-8 rounded-lg flex items-center justify-center font-black text-sm text-white"
-            style={{ background: 'linear-gradient(135deg,#6D5DFB,#00D2FF)' }}>H</div>
+            style={{ background: 'linear-gradient(135deg,#7c3aed,#5b21b6)' }}>H</div>
           <span className="font-manrope font-black text-xl">HORIZON<span className="gradient-text">RP</span></span>
         </Link>
 
@@ -81,7 +81,7 @@ export default function Header() {
               <button className="flex items-center gap-2 px-3 py-2 rounded-xl transition-all"
                 style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}>
                 <div className="w-7 h-7 rounded-lg overflow-hidden flex items-center justify-center font-black text-sm text-white flex-shrink-0"
-                  style={{ background: avatar ? 'transparent' : 'linear-gradient(135deg,#6D5DFB,#00D2FF)' }}>
+                  style={{ background: avatar ? 'transparent' : 'linear-gradient(135deg,#7c3aed,#5b21b6)' }}>
                   {avatar
                     ? <img src={avatar} alt="avatar" className="w-full h-full object-cover" />
                     : user.nick[0].toUpperCase()

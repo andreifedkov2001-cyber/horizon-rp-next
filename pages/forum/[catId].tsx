@@ -116,11 +116,11 @@ const ForumCat: NextPage = () => {
   return (
     <>
       <Head><title>{cat.name} — Форум Horizon RP</title></Head>
-      <div className="min-h-screen" style={{ background: '#090B10' }}>
+      <div className="min-h-screen" style={{ background: '#0a0a0f' }}>
         <Header />
 
         <section className="pt-24 pb-10 relative"
-          style={{ background: 'linear-gradient(135deg,#090B10 0%,#12151D 100%)', borderBottom: '1px solid rgba(109,93,251,0.1)' }}>
+          style={{ background: 'linear-gradient(135deg,#0a0a0f 0%,#0e0a18 100%)', borderBottom: '1px solid rgba(124,58,237,0.1)' }}>
           <div className="max-w-5xl mx-auto px-6">
             <div className="flex items-center gap-2 text-sm mb-4" style={{ color: '#A9B0C2' }}>
               <Link href="/" className="hover:text-white transition-colors">Главная</Link>
@@ -165,9 +165,9 @@ const ForumCat: NextPage = () => {
                   style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}
                   onMouseEnter={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.02)')}
                   onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}>
-                  {t.pinned && <span className="text-sm flex-shrink-0" style={{ color: '#6D5DFB' }}>📌</span>}
+                  {t.pinned && <span className="text-sm flex-shrink-0" style={{ color: '#7c3aed' }}>📌</span>}
                   <div className="w-10 h-10 rounded-xl flex items-center justify-center font-black text-sm text-white flex-shrink-0"
-                    style={{ background: 'linear-gradient(135deg,#6D5DFB,#00D2FF)' }}>
+                    style={{ background: 'linear-gradient(135deg,#7c3aed,#5b21b6)' }}>
                     {(t.author || '?')[0].toUpperCase()}
                   </div>
                   <div className="flex-1 min-w-0 cursor-pointer" onClick={() => router.push(`/forum/topic/${t.id}`)}>
@@ -214,7 +214,7 @@ const ForumCat: NextPage = () => {
             <motion.div initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.9, y: 20 }}
               onClick={e => e.stopPropagation()}
               className="w-full max-w-lg rounded-2xl p-6"
-              style={{ background: 'rgba(18,21,29,0.98)', border: '1px solid rgba(109,93,251,0.2)' }}>
+              style={{ background: 'rgba(18,21,29,0.98)', border: '1px solid rgba(124,58,237,0.2)' }}>
               <div className="flex items-center justify-between mb-5">
                 <h3 className="font-manrope font-bold text-lg">✏️ Новая тема</h3>
                 <button onClick={() => setModal(false)}

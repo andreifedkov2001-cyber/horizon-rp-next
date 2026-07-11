@@ -45,16 +45,16 @@ const NewsPage: NextPage = () => {
   return (
     <>
       <Head><title>Новости — Horizon RP</title></Head>
-      <div className="min-h-screen" style={{ background: '#090B10' }}>
+      <div className="min-h-screen" style={{ background: '#0a0a0f' }}>
         <Header />
 
         {/* Hero */}
         <section className="pt-24 pb-12 relative"
-          style={{ background: 'linear-gradient(135deg,#090B10 0%,#12151D 100%)', borderBottom: '1px solid rgba(109,93,251,0.1)' }}>
+          style={{ background: 'linear-gradient(135deg,#0a0a0f 0%,#0e0a18 100%)', borderBottom: '1px solid rgba(124,58,237,0.1)' }}>
           <div className="max-w-5xl mx-auto px-6 text-center">
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full mb-4"
-                style={{ background: 'rgba(109,93,251,0.1)', border: '1px solid rgba(109,93,251,0.2)' }}>
+                style={{ background: 'rgba(124,58,237,0.1)', border: '1px solid rgba(124,58,237,0.2)' }}>
                 <span className="text-sm font-semibold gradient-text">Последние события</span>
               </div>
               <h1 className="section-title mb-3">Новости <span className="gradient-text">Horizon RP</span></h1>
@@ -101,7 +101,7 @@ const NewsPage: NextPage = () => {
                     </div>
                     <h3 className="font-manrope font-bold text-base mb-3 leading-snug">{n.title}</h3>
                     <p className="text-sm leading-relaxed mb-4" style={{ color: '#A9B0C2' }}>{n.desc}</p>
-                    <div className="flex items-center gap-1 text-sm font-medium" style={{ color: '#6D5DFB' }}>
+                    <div className="flex items-center gap-1 text-sm font-medium" style={{ color: '#7c3aed' }}>
                       Читать далее
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                         <path d="M5 12h14M12 5l7 7-7 7"/>

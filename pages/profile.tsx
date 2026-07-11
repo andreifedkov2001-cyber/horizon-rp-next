@@ -73,7 +73,7 @@ const Profile: NextPage = () => {
   }
 
   if (!user) return (
-    <div className="min-h-screen flex items-center justify-center" style={{ background: '#090B10' }}>
+    <div className="min-h-screen flex items-center justify-center" style={{ background: '#0a0a0f' }}>
       <div className="text-sm" style={{ color: '#A9B0C2' }}>Загрузка...</div>
     </div>
   )
@@ -83,12 +83,12 @@ const Profile: NextPage = () => {
   return (
     <>
       <Head><title>Профиль — Horizon RP</title></Head>
-      <div className="min-h-screen" style={{ background: '#090B10' }}>
+      <div className="min-h-screen" style={{ background: '#0a0a0f' }}>
         <Header />
 
         {/* Баннер */}
         <div className="pt-16 relative h-48 overflow-hidden"
-          style={{ background: 'linear-gradient(135deg,rgba(109,93,251,0.3) 0%,rgba(0,210,255,0.15) 100%)' }}>
+          style={{ background: 'linear-gradient(135deg,rgba(124,58,237,0.3) 0%,rgba(167,139,250,0.15) 100%)' }}>
           <div className="absolute inset-0 grid-bg opacity-30" />
         </div>
 
@@ -100,7 +100,7 @@ const Profile: NextPage = () => {
             <div className="relative flex-shrink-0 group">
               <motion.div initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
                 className="w-24 h-24 rounded-2xl overflow-hidden flex items-center justify-center font-black text-4xl text-white"
-                style={{ border: '4px solid #090B10', background: avatar ? 'transparent' : 'linear-gradient(135deg,#6D5DFB,#00D2FF)' }}>
+                style={{ border: '4px solid #0a0a0f', background: avatar ? 'transparent' : 'linear-gradient(135deg,#7c3aed,#5b21b6)' }}>
                 {avatar
                   ? <img src={avatar} alt="avatar" className="w-full h-full object-cover" />
                   : user.nick[0].toUpperCase()
@@ -111,7 +111,7 @@ const Profile: NextPage = () => {
               <button
                 onClick={() => fileRef.current?.click()}
                 className="absolute inset-0 rounded-2xl flex flex-col items-center justify-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity"
-                style={{ background: 'rgba(0,0,0,0.65)', border: '4px solid #090B10' }}
+                style={{ background: 'rgba(0,0,0,0.65)', border: '4px solid #0a0a0f' }}
                 title="Сменить аватарку">
                 {uploading
                   ? <svg className="animate-spin w-6 h-6 text-white" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>
@@ -131,7 +131,7 @@ const Profile: NextPage = () => {
               <h1 className="font-manrope font-black text-3xl">{user.nick}</h1>
               <div className="flex flex-wrap items-center gap-2 mt-1">
                 <span className="text-sm px-3 py-1 rounded-full font-medium"
-                  style={{ background: 'rgba(109,93,251,0.15)', color: '#a78bfa', border: '1px solid rgba(109,93,251,0.3)' }}>
+                  style={{ background: 'rgba(124,58,237,0.15)', color: '#a78bfa', border: '1px solid rgba(124,58,237,0.3)' }}>
                   {roleMap[user.role] || '🎮 Игрок'}
                 </span>
                 <span className="text-sm" style={{ color: '#A9B0C2' }}>Зарегистрирован: {user.joined}</span>
@@ -140,7 +140,7 @@ const Profile: NextPage = () => {
               <div className="flex gap-2 mt-3 flex-wrap">
                 <button onClick={() => fileRef.current?.click()}
                   className="text-xs px-3 py-1.5 rounded-lg font-medium transition-all"
-                  style={{ background: 'rgba(109,93,251,0.1)', border: '1px solid rgba(109,93,251,0.3)', color: '#a78bfa' }}>
+                  style={{ background: 'rgba(124,58,237,0.1)', border: '1px solid rgba(124,58,237,0.3)', color: '#a78bfa' }}>
                   📷 {avatar ? 'Сменить фото' : 'Загрузить фото'}
                 </button>
                 {avatar && (

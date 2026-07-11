@@ -24,7 +24,7 @@ export default function Hero() {
         if (p.x < 0) p.x = c.width; if (p.x > c.width) p.x = 0
         if (p.y < 0) p.y = c.height; if (p.y > c.height) p.y = 0
         ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2)
-        ctx.fillStyle = `rgba(109,93,251,${p.a})`; ctx.fill()
+        ctx.fillStyle = `rgba(124,58,237,${p.a})`; ctx.fill()
       })
       raf = requestAnimationFrame(draw)
     }
@@ -40,10 +40,10 @@ export default function Hero() {
   }, [])
 
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden" style={{ background: '#090B10' }}>
+    <section className="relative min-h-screen flex items-center justify-center overflow-hidden" style={{ background: '#0a0a0f' }}>
       <div className="absolute inset-0 grid-bg opacity-50" />
       <div className="absolute inset-0" style={{
-        background: 'radial-gradient(ellipse 80% 60% at 50% 70%, rgba(109,93,251,0.14) 0%, transparent 70%), radial-gradient(ellipse 50% 40% at 80% 20%, rgba(0,210,255,0.07) 0%, transparent 60%)',
+        background: 'radial-gradient(ellipse 80% 60% at 50% 70%, rgba(124,58,237,0.14) 0%, transparent 70%), radial-gradient(ellipse 50% 40% at 80% 20%, rgba(167,139,250,0.07) 0%, transparent 60%)',
       }} />
       <canvas ref={canvasRef} className="absolute inset-0 pointer-events-none" />
 
@@ -73,7 +73,7 @@ export default function Hero() {
 
 
       </div>
-      <div className="absolute bottom-0 left-0 right-0 h-32" style={{ background: 'linear-gradient(to top, #090B10, transparent)' }} />
+      <div className="absolute bottom-0 left-0 right-0 h-32" style={{ background: 'linear-gradient(to top, #0a0a0f, transparent)' }} />
     </section>
   )
 }

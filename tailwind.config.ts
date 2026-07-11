@@ -9,10 +9,10 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        'bg-main': '#090B10',
-        'bg-card': '#12151D',
-        accent: '#6D5DFB',
-        accent2: '#00D2FF',
+        'bg-main': '#0a0a0f',
+        'bg-card': '#0e0a18',
+        accent: '#7c3aed',
+        accent2: '#a78bfa',
       },
       fontFamily: {
         inter: ['Inter', 'sans-serif'],
