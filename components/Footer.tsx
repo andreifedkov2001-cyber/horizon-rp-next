@@ -34,7 +34,6 @@ export default function Footer() {
           {[
             { title: 'Навигация', links: [{ l: 'Главная', h: '/' }, { l: 'Как зайти', h: '/start' }, { l: 'Новости', h: '/news' }, { l: 'Форум', h: '/forum' }, { l: 'Донат', h: '/donate' }] },
             { title: 'Поддержка', links: [{ l: 'Правила', h: '#' }, { l: 'FAQ', h: '#' }, { l: 'Техподдержка', h: '#' }, { l: 'Баг-репорт', h: '#' }] },
-            { title: 'Сообщество', links: [{ l: 'Discord', h: 'https://discord.gg/K2aE6q9NN' }, { l: 'Telegram', h: '#' }, { l: 'ВКонтакте', h: '#' }, { l: 'YouTube', h: '#' }] },
           ].map(col => (
             <div key={col.title}>
               <h4 className="text-xs font-semibold uppercase tracking-widest mb-4" style={{ color: '#A9B0C2' }}>{col.title}</h4>
