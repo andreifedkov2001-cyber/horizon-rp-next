@@ -31,6 +31,7 @@ const Admin: NextPage = () => {
   const [uSearch, setUSearch] = useState('')
   const [lSearch, setLSearch] = useState('')
   const [lType, setLType]     = useState('')
+  const [userSubTab, setUserSubTab] = useState<'members'|'staff'>('members')
   const [editU, setEditU]     = useState<User|null>(null)
   const [eRole, setERole]     = useState('')
   const [eBan, setEBan]       = useState(false)
@@ -241,6 +242,21 @@ const Admin: NextPage = () => {
           {/* ПОЛЬЗОВАТЕЛИ */}
           {tab==='users' && (
             <motion.div initial={{ opacity:0 }} animate={{ opacity:1 }}>
+              {/* Подвкладки */}
+              <div className="flex gap-2 mb-6 p-1 rounded-xl w-fit"
+                style={{ background:'rgba(255,255,255,0.04)', border:'1px solid rgba(255,255,255,0.07)' }}>
+                {([['members','🎮 Участники'],['staff','👑 Администрация']] as const).map(([id,label])=>(
+                  <button key={id}
+                    onClick={()=>setUserSubTab(id)}
+                    className="px-6 py-2 rounded-lg text-sm font-semibold transition-all"
+                    style={userSubTab===id
+                      ? {background:'linear-gradient(135deg,#6D5DFB,#00D2FF)',color:'#fff'}
+                      : {color:'#A9B0C2'}}>
+                    {label}
+                  </button>
+                ))}
+              </div>
+
               <div className="flex gap-3 mb-5 flex-wrap">
                 <div className="flex-1 min-w-[200px] flex items-center gap-3 px-4 py-2.5 rounded-xl"
                   style={{ background:'rgba(18,21,29,0.8)', border:'1px solid rgba(255,255,255,0.07)' }}>
@@ -249,21 +265,106 @@ const Admin: NextPage = () => {
                     className="bg-transparent outline-none text-sm w-full text-white placeholder-gray-500" />
                 </div>
               </div>
-              <div className="glass-card overflow-hidden">
-                {fUsers.map(u=>(
-                  <div key={u.id} className="flex items-center gap-3 px-5 py-3 flex-wrap" style={{ borderBottom:'1px solid rgba(255,255,255,0.05)' }}>
-                    <div className="w-9 h-9 rounded-xl flex items-center justify-center font-black text-sm text-white flex-shrink-0"
-                      style={{ background:'linear-gradient(135deg,#6D5DFB,#00D2FF)' }}>{u.nick[0].toUpperCase()}</div>
-                    <div className="flex-1 min-w-0">
-                      <div className="font-semibold text-sm flex items-center gap-2 flex-wrap">
-                        {u.nick}
-                        {u.banned && <span className="text-xs px-2 py-0.5 rounded-full" style={{ background:'rgba(248,113,113,0.12)',color:'#f87171',border:'1px solid rgba(248,113,113,0.25)' }}>Забанен</span>}
+
+              {/* Участники (Player) */}
+              {userSubTab==='members' && (
+                <div className="glass-card overflow-hidden">
+                  <div className="px-5 py-3 font-semibold text-sm flex items-center justify-between"
+                    style={{ borderBottom:'1px solid rgba(255,255,255,0.05)', background:'rgba(255,255,255,0.02)' }}>
+                    <span>🎮 Участники</span>
+                    <span className="text-xs font-normal" style={{ color:'#A9B0C2' }}>
+                      {fUsers.filter(u=>u.role==='Player'||(!['Admin','Moder'].includes(u.role))).length} игроков
+                    </span>
+                  </div>
+                  {fUsers.filter(u=>u.role==='Player'||(!['Admin','Moder'].includes(u.role))).map(u=>(
+                    <div key={u.id} className="flex items-center gap-3 px-5 py-3 flex-wrap"
+                      style={{ borderBottom:'1px solid rgba(255,255,255,0.05)' }}>
+                      <div className="w-9 h-9 rounded-xl flex items-center justify-center font-black text-sm text-white flex-shrink-0"
+                        style={{ background:'linear-gradient(135deg,#6D5DFB,#00D2FF)' }}>
+                        {u.nick[0].toUpperCase()}
                       </div>
-                      <div className="text-xs" style={{ color:'#A9B0C2' }}>{u.email} · {u.joined}</div>
+                      <div className="flex-1 min-w-0">
+                        <div className="font-semibold text-sm flex items-center gap-2 flex-wrap">
+                          {u.nick}
+                          {u.banned && <span className="text-xs px-2 py-0.5 rounded-full"
+                            style={{ background:'rgba(248,113,113,0.12)',color:'#f87171',border:'1px solid rgba(248,113,113,0.25)' }}>
+                            Забанен
+                          </span>}
+                        </div>
+                        <div className="text-xs" style={{ color:'#A9B0C2' }}>{u.email} · {u.joined}</div>
+                      </div>
+                      <span className="text-xs px-3 py-1 rounded-full font-semibold"
+                        style={ROLE_COLORS[u.role]||ROLE_COLORS.Player}>{u.role}</span>
+                      <div className="flex gap-2 flex-shrink-0">
+                        <button onClick={()=>openEdit(u)} className="text-xs px-3 py-1.5 rounded-lg transition-colors"
+                          style={{ background:'rgba(255,255,255,0.05)',border:'1px solid rgba(255,255,255,0.08)',color:'#fff' }}>
+                          ✏️ Изменить
+                        </button>
+                        <button onClick={()=>toggleBan(u)} className="text-xs px-3 py-1.5 rounded-lg transition-colors"
+                          style={u.banned
+                            ? {background:'rgba(52,211,153,0.1)',border:'1px solid rgba(52,211,153,0.25)',color:'#6ee7b7'}
+                            : {background:'rgba(248,113,113,0.1)',border:'1px solid rgba(248,113,113,0.25)',color:'#f87171'}}>
+                          {u.banned ? '✅ Разбан' : '🚫 Бан'}
+                        </button>
+                      </div>
                     </div>
-                    <span className="text-xs px-3 py-1 rounded-full font-semibold" style={ROLE_COLORS[u.role]||ROLE_COLORS.Player}>{u.role}</span>
-                    <div className="flex gap-2 flex-shrink-0">
-                      <button onClick={()=>openEdit(u)} className="text-xs px-3 py-1.5 rounded-lg transition-colors"
+                  ))}
+                  {!fUsers.filter(u=>u.role==='Player'||(!['Admin','Moder'].includes(u.role))).length &&
+                    <div className="px-5 py-10 text-center text-sm" style={{ color:'#A9B0C2' }}>Участников нет</div>}
+                </div>
+              )}
+
+              {/* Администрация (Admin/Moder) */}
+              {userSubTab==='staff' && (
+                <div className="glass-card overflow-hidden">
+                  <div className="px-5 py-3 font-semibold text-sm flex items-center justify-between"
+                    style={{ borderBottom:'1px solid rgba(255,255,255,0.05)', background:'rgba(255,255,255,0.02)' }}>
+                    <span>👑 Администрация</span>
+                    <span className="text-xs font-normal" style={{ color:'#A9B0C2' }}>
+                      {fUsers.filter(u=>u.role==='Admin'||u.role==='Moder').length} человек
+                    </span>
+                  </div>
+                  {fUsers.filter(u=>u.role==='Admin'||u.role==='Moder').map(u=>(
+                    <div key={u.id} className="flex items-center gap-3 px-5 py-3 flex-wrap"
+                      style={{ borderBottom:'1px solid rgba(255,255,255,0.05)' }}>
+                      <div className="w-9 h-9 rounded-xl flex items-center justify-center font-black text-sm text-white flex-shrink-0"
+                        style={{ background: u.role==='Admin'
+                          ? 'linear-gradient(135deg,#f472b6,#e879f9)'
+                          : 'linear-gradient(135deg,#a78bfa,#6D5DFB)' }}>
+                        {u.nick[0].toUpperCase()}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="font-semibold text-sm flex items-center gap-2 flex-wrap">
+                          {u.nick}
+                          {u.banned && <span className="text-xs px-2 py-0.5 rounded-full"
+                            style={{ background:'rgba(248,113,113,0.12)',color:'#f87171',border:'1px solid rgba(248,113,113,0.25)' }}>
+                            Забанен
+                          </span>}
+                        </div>
+                        <div className="text-xs" style={{ color:'#A9B0C2' }}>{u.email} · {u.joined}</div>
+                      </div>
+                      <span className="text-xs px-3 py-1 rounded-full font-semibold"
+                        style={ROLE_COLORS[u.role]||ROLE_COLORS.Player}>{u.role}</span>
+                      <div className="flex gap-2 flex-shrink-0">
+                        <button onClick={()=>openEdit(u)} className="text-xs px-3 py-1.5 rounded-lg transition-colors"
+                          style={{ background:'rgba(255,255,255,0.05)',border:'1px solid rgba(255,255,255,0.08)',color:'#fff' }}>
+                          ✏️ Изменить
+                        </button>
+                        <button onClick={()=>toggleBan(u)} className="text-xs px-3 py-1.5 rounded-lg transition-colors"
+                          style={u.banned
+                            ? {background:'rgba(52,211,153,0.1)',border:'1px solid rgba(52,211,153,0.25)',color:'#6ee7b7'}
+                            : {background:'rgba(248,113,113,0.1)',border:'1px solid rgba(248,113,113,0.25)',color:'#f87171'}}>
+                          {u.banned ? '✅ Разбан' : '🚫 Бан'}
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                  {!fUsers.filter(u=>u.role==='Admin'||u.role==='Moder').length &&
+                    <div className="px-5 py-10 text-center text-sm" style={{ color:'#A9B0C2' }}>Администраторов нет</div>}
+                </div>
+              )}
+            </motion.div>
+          )}
                         style={{ background:'rgba(255,255,255,0.05)',border:'1px solid rgba(255,255,255,0.08)',color:'#fff' }}>✏️ Изменить</button>
                       <button onClick={()=>toggleBan(u)} className="text-xs px-3 py-1.5 rounded-lg transition-colors"
                         style={u.banned ? {background:'rgba(52,211,153,0.1)',border:'1px solid rgba(52,211,153,0.25)',color:'#6ee7b7'} : {background:'rgba(248,113,113,0.1)',border:'1px solid rgba(248,113,113,0.25)',color:'#f87171'}}>
