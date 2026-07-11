@@ -365,18 +365,6 @@ const Admin: NextPage = () => {
               )}
             </motion.div>
           )}
-                        style={{ background:'rgba(255,255,255,0.05)',border:'1px solid rgba(255,255,255,0.08)',color:'#fff' }}>✏️ Изменить</button>
-                      <button onClick={()=>toggleBan(u)} className="text-xs px-3 py-1.5 rounded-lg transition-colors"
-                        style={u.banned ? {background:'rgba(52,211,153,0.1)',border:'1px solid rgba(52,211,153,0.25)',color:'#6ee7b7'} : {background:'rgba(248,113,113,0.1)',border:'1px solid rgba(248,113,113,0.25)',color:'#f87171'}}>
-                        {u.banned ? '✅ Разбан' : '🚫 Бан'}
-                      </button>
-                    </div>
-                  </div>
-                ))}
-                {!fUsers.length && <div className="px-5 py-10 text-center text-sm" style={{ color:'#A9B0C2' }}>Ничего не найдено</div>}
-              </div>
-            </motion.div>
-          )}
 
           {/* РОЛИ */}
           {tab==='roles' && (
