@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from 'next'
 import { supabase } from '../../../lib/supabase'
-import bcrypt from 'bcryptjs'
+import * as bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {

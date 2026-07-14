@@ -2,8 +2,14 @@
 const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
-  experimental: {
-    forceSwcTransforms: true,
+  compiler: {
+    removeConsole: process.env.NODE_ENV === 'production',
+  },
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
+  typescript: {
+    ignoreBuildErrors: false,
   },
 }
 

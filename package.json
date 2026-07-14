@@ -12,7 +12,6 @@
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.110.2",
-    "@types/bcryptjs": "^3.0.0",
     "@types/jsonwebtoken": "^9.0.10",
     "bcryptjs": "^3.0.3",
     "framer-motion": "^12.42.2",
