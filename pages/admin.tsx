@@ -1,4 +1,5 @@
 import type { NextPage } from 'next'
+import type { NextPage } from 'next'
 import Head from 'next/head'
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/router'
@@ -87,7 +88,15 @@ const Admin: NextPage = () => {
     const n = ls.get('hrp_news', null); if (n) setNews(n)
   }, [user, router])
 
-  if (!user || (user.role !== 'Admin' && user.role !== 'Moder')) return (
+  // Показываем загрузку во время проверки аутентификации
+  if (!user) return (
+    <div className="min-h-screen flex flex-col items-center justify-center gap-4" style={{ background: '#0a0a0f' }}>
+      <div className="text-6xl">⏳</div>
+      <h1 className="font-manrope font-black text-2xl">Загрузка...</h1>
+    </div>
+  )
+
+  if (user.role !== 'Admin' && user.role !== 'Moder') return (
     <div className="min-h-screen flex flex-col items-center justify-center gap-4" style={{ background: '#0a0a0f' }}>
       <div className="text-6xl">🚫</div>
       <h1 className="font-manrope font-black text-2xl">Доступ запрещён</h1>

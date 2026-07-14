@@ -18,10 +18,13 @@ const Profile: NextPage = () => {
   useEffect(() => {
     if (typeof window === 'undefined') return
     const t = setTimeout(() => {
-      if (!localStorage.getItem('hrp_session')) { openAuth('login'); router.push('/') }
+      if (!localStorage.getItem('hrp_session')) { 
+        openAuth('login')
+        // Не делаем router.push здесь, так как это может вызвать проблемы при экспорте
+      }
     }, 400)
     return () => clearTimeout(t)
-  }, [user])
+  }, [user, openAuth])
 
   // Загружаем аватар пользователя
   useEffect(() => {
