@@ -194,16 +194,7 @@ const Forum: NextPage = () => {
             ))}
           </div>
 
-          {/* Статистика */}
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }}
-            className="mt-8 glass-card p-6 grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
-            {[{ l: 'Тем', v: '191' }, { l: 'Сообщений', v: '688' }, { l: 'Участников', v: '50 000' }, { l: 'Онлайн', v: '1 244' }].map((s, i) => (
-              <div key={i}>
-                <div className="font-manrope font-black text-2xl gradient-text">{s.v}</div>
-                <div className="text-sm mt-1" style={{ color: '#A9B0C2' }}>{s.l}</div>
-              </div>
-            ))}
-          </motion.div>
+
         </main>
         <Footer />
       </div>

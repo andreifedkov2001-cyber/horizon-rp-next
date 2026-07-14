@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Debug Users - Horizon RP</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            background: #0a0a0f; 
+            color: white; 
+            margin: 20px;
+        }
+        .container { max-width: 800px; margin: 0 auto; }
+        .user-card { 
+            background: rgba(255,255,255,0.1); 
+            padding: 15px; 
+            margin: 10px 0; 
+            border-radius: 8px; 
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        button { 
+            background: #7c3aed; 
+            color: white; 
+            border: none; 
+            padding: 8px 16px; 
+            border-radius: 6px; 
+            cursor: pointer; 
+            margin: 5px;
+        }
+        button:hover { background: #5b21b6; }
+        .admin { border-left: 4px solid #f472b6; }
+        .moder { border-left: 4px solid #a78bfa; }
+        .player { border-left: 4px solid #60a5fa; }
+        .info { background: rgba(96,165,250,0.1); padding: 10px; border-radius: 6px; margin: 10px 0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Диагностика пользователей Horizon RP</h1>
+        
+        <div class="info">
+            <strong>Инструкция:</strong><br>
+            1. Проверьте список всех зарегистрированных пользователей<br>
+            2. Если нужного пользователя нет - значит регистрация не сработала<br>
+            3. Если есть, но роль "Player" - назначьте роль "Admin" кнопкой<br>
+            4. После этого обновите админ-панель
+        </div>
+
+        <div id="users-list"></div>
+
+        <hr style="margin: 30px 0; border-color: rgba(255,255,255,0.2);">
+
+        <h3>🛠 Управление</h3>
+        <button onclick="clearAllData()">🗑 Очистить все данные</button>
+        <button onclick="createTestAdmin()">👑 Создать тестового админа</button>
+        <button onclick="location.reload()">🔄 Обновить</button>
+
+        <div style="margin-top: 20px;">
+            <h4>📝 Создать нового пользователя</h4>
+            <input type="text" id="newNick" placeholder="Никнейм" style="margin: 5px; padding: 8px; border-radius: 4px; border: 1px solid #ccc;">
+            <input type="email" id="newEmail" placeholder="Email" style="margin: 5px; padding: 8px; border-radius: 4px; border: 1px solid #ccc;">
+            <select id="newRole" style="margin: 5px; padding: 8px; border-radius: 4px; border: 1px solid #ccc;">
+                <option value="Player">Игрок</option>
+                <option value="Moder">Модератор</option>
+                <option value="Admin">Администратор</option>
+            </select>
+            <button onclick="createUser()">➕ Создать</button>
+        </div>
+
+        <div id="log" style="margin-top: 20px; font-family: monospace; font-size: 12px; background: rgba(0,0,0,0.3); padding: 10px; border-radius: 6px; max-height: 200px; overflow-y: auto;"></div>
+    </div>
+
+    <script>
+        function log(message) {
+            const logDiv = document.getElementById('log');
+            const time = new Date().toLocaleTimeString();
+            logDiv.innerHTML += `<div>[${time}] ${message}</div>`;
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
+
+        function getUsers() {
+            try {
+                const users = JSON.parse(localStorage.getItem('hrp_users') || '[]');
+                log(`Загружено ${users.length} пользователей из localStorage`);
+                return users;
+            } catch (e) {
+                log(`Ошибка загрузки пользователей: ${e.message}`);
+                return [];
+            }
+        }
+
+        function saveUsers(users) {
+            try {
+                localStorage.setItem('hrp_users', JSON.stringify(users));
+                log(`Сохранено ${users.length} пользователей в localStorage`);
+                return true;
+            } catch (e) {
+                log(`Ошибка сохранения: ${e.message}`);
+                return false;
+            }
+        }
+
+        function makeAdmin(userId) {
+            const users = getUsers();
+            const user = users.find(u => u.id === userId);
+            if (user) {
+                user.role = 'Admin';
+                if (saveUsers(users)) {
+                    log(`✅ Пользователь ${user.nick} получил права администратора`);
+                    displayUsers();
+                }
+            }
+        }
+
+        function deleteUser(userId) {
+            if (confirm('Удалить пользователя?')) {
+                const users = getUsers();
+                const newUsers = users.filter(u => u.id !== userId);
+                if (saveUsers(newUsers)) {
+                    log(`🗑 Пользователь удален`);
+                    displayUsers();
+                }
+            }
+        }
+
+        function displayUsers() {
+            const users = getUsers();
+            const container = document.getElementById('users-list');
+            
+            if (users.length === 0) {
+                container.innerHTML = '<div class="user-card">❌ Пользователей не найдено</div>';
+                log('⚠️ База пользователей пуста');
+                return;
+            }
+
+            container.innerHTML = users.map(user => `
+                <div class="user-card ${user.role.toLowerCase()}">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <strong>${user.nick}</strong> 
+                            <span style="color: #A9B0C2;">(${user.email})</span>
+                            <br>
+                            <small style="color: #A9B0C2;">
+                                Роль: <strong style="color: ${user.role === 'Admin' ? '#f472b6' : user.role === 'Moder' ? '#a78bfa' : '#60a5fa'};">${user.role}</strong>
+                                | Дата: ${user.joined}
+                                ${user.banned ? '| <span style="color: #f87171;">ЗАБАНЕН</span>' : ''}
+                            </small>
+                        </div>
+                        <div>
+                            ${user.role !== 'Admin' ? `<button onclick="makeAdmin('${user.id}')">👑 Сделать админом</button>` : ''}
+                            <button onclick="deleteUser('${user.id}')" style="background: #ef4444;">🗑 Удалить</button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            log(`📊 Отображено пользователей: ${users.length}`);
+        }
+
+        function clearAllData() {
+            if (confirm('Удалить ВСЕ данные Horizon RP? Это действие нельзя отменить!')) {
+                localStorage.removeItem('hrp_users');
+                localStorage.removeItem('hrp_session');
+                localStorage.removeItem('hrp_logs');
+                localStorage.removeItem('hrp_topics');
+                localStorage.removeItem('hrp_settings');
+                localStorage.removeItem('hrp_roles');
+                localStorage.removeItem('hrp_news');
+                log('🗑 Все данные очищены');
+                displayUsers();
+            }
+        }
+
+        function createTestAdmin() {
+            const users = getUsers();
+            const testAdmin = {
+                id: 'u' + Date.now(),
+                nick: 'TestAdmin',
+                email: 'admin@test.com',
+                role: 'Admin',
+                joined: new Date().toLocaleDateString('ru-RU'),
+                banned: false
+            };
+            
+            // Проверяем, нет ли уже такого пользователя
+            if (users.find(u => u.nick === 'TestAdmin' || u.email === 'admin@test.com')) {
+                log('⚠️ Тестовый админ уже существует');
+                return;
+            }
+
+            users.push(testAdmin);
+            if (saveUsers(users)) {
+                // Также сохраняем пароль для тестового админа
+                localStorage.setItem('hrp_p_' + testAdmin.id, btoa('123456'));
+                log('✅ Создан тестовый админ: TestAdmin / admin@test.com / пароль: 123456');
+                displayUsers();
+            }
+        }
+
+        function createUser() {
+            const nick = document.getElementById('newNick').value.trim();
+            const email = document.getElementById('newEmail').value.trim();
+            const role = document.getElementById('newRole').value;
+
+            if (!nick || !email) {
+                alert('Заполните все поля');
+                return;
+            }
+
+            const users = getUsers();
+            
+            // Проверяем существование
+            if (users.find(u => u.nick.toLowerCase() === nick.toLowerCase())) {
+                log(`⚠️ Пользователь с ником "${nick}" уже существует`);
+                return;
+            }
+            if (users.find(u => u.email === email.toLowerCase())) {
+                log(`⚠️ Пользователь с email "${email}" уже существует`);
+                return;
+            }
+
+            const newUser = {
+                id: 'u' + Date.now(),
+                nick: nick,
+                email: email.toLowerCase(),
+                role: role,
+                joined: new Date().toLocaleDateString('ru-RU'),
+                banned: false
+            };
+
+            users.push(newUser);
+            if (saveUsers(users)) {
+                // Сохраняем дефолтный пароль
+                localStorage.setItem('hrp_p_' + newUser.id, btoa('123456'));
+                log(`✅ Создан пользователь: ${nick} / ${email} / роль: ${role} / пароль: 123456`);
+                
+                // Очищаем поля
+                document.getElementById('newNick').value = '';
+                document.getElementById('newEmail').value = '';
+                
+                displayUsers();
+            }
+        }
+
+        // Инициализация
+        window.onload = function() {
+            log('🔍 Инициализация диагностики...');
+            displayUsers();
+        };
+    </script>
+</body>
+</html>

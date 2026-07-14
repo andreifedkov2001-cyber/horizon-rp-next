@@ -3,14 +3,13 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useAuth } from '../context/AuthContext'
 
 export default function AuthModal() {
-  const { authOpen, authTab, closeAuth, login, register } = useAuth()
+  const { authOpen, authTab, closeAuth, login, register, loading } = useAuth()
   const [tab, setTab]     = useState<'login'|'register'>(authTab)
   const [nick, setNick]   = useState('')
   const [email, setEmail] = useState('')
   const [pass, setPass]   = useState('')
   const [pass2, setPass2] = useState('')
   const [err, setErr]     = useState('')
-  const [loading, setLoading] = useState(false)
 
   useEffect(() => { setTab(authTab) }, [authTab])
 
@@ -20,10 +19,8 @@ export default function AuthModal() {
     setErr('')
     if (!nick) return setErr('Введи никнейм')
     if (!pass) return setErr('Введи пароль')
-    setLoading(true)
-    await new Promise(r => setTimeout(r, 350))
-    const e = login(nick, pass)
-    setLoading(false)
+    
+    const e = await login(nick, pass)
     if (e) setErr(e); else reset()
   }
 
@@ -33,10 +30,8 @@ export default function AuthModal() {
     if (!email) return setErr('Введи email')
     if (!pass) return setErr('Введи пароль')
     if (pass !== pass2) return setErr('Пароли не совпадают')
-    setLoading(true)
-    await new Promise(r => setTimeout(r, 350))
-    const e = register(nick, email, pass)
-    setLoading(false)
+    
+    const e = await register(nick, email, pass)
     if (e) setErr(e); else reset()
   }
 

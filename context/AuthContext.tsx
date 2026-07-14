@@ -5,58 +5,125 @@ export interface User {
 }
 interface AuthCtx {
   user: User | null
-  login: (nick: string, pass: string) => string | null
-  register: (nick: string, email: string, pass: string) => string | null
+  login: (nick: string, pass: string) => Promise<string | null>
+  register: (nick: string, email: string, pass: string) => Promise<string | null>
   logout: () => void
   authOpen: boolean
   authTab: 'login' | 'register'
   openAuth: (tab?: 'login' | 'register') => void
   closeAuth: () => void
+  loading: boolean
 }
 
 const Ctx = createContext<AuthCtx | null>(null)
 
 const ls = {
-  get: (k: string, fb: any = null) => { try { return JSON.parse(localStorage.getItem(k) || 'null') ?? fb } catch { return fb } },
-  set: (k: string, v: any) => localStorage.setItem(k, JSON.stringify(v)),
-  rm:  (k: string) => localStorage.removeItem(k),
+  get: (k: string, fb: any = null) => { 
+    if (typeof window === 'undefined') return fb
+    try { return JSON.parse(localStorage.getItem(k) || 'null') ?? fb } catch { return fb } 
+  },
+  set: (k: string, v: any) => {
+    if (typeof window === 'undefined') return
+    localStorage.setItem(k, JSON.stringify(v))
+  },
+  rm:  (k: string) => {
+    if (typeof window === 'undefined') return
+    localStorage.removeItem(k)
+  },
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser]       = useState<User | null>(null)
   const [authOpen, setOpen]   = useState(false)
   const [authTab, setTab]     = useState<'login'|'register'>('login')
+  const [loading, setLoading] = useState(false)
 
-  useEffect(() => { const s = ls.get('hrp_session'); if (s) setUser(s) }, [])
+  // Проверяем токен при загрузке
+  useEffect(() => { 
+    const token = ls.get('hrp_token')
+    const savedUser = ls.get('hrp_session')
+    if (token && savedUser) {
+      setUser(savedUser)
+      // Можно добавить проверку валидности токена
+    }
+  }, [])
 
   const openAuth  = (tab: 'login'|'register' = 'login') => { setTab(tab); setOpen(true) }
   const closeAuth = () => setOpen(false)
 
-  const login = (nick: string, pass: string): string | null => {
-    const users: User[] = ls.get('hrp_users', [])
-    const u = users.find(u => u.nick.toLowerCase() === nick.toLowerCase())
-    if (!u) return 'Пользователь не найден'
-    if (ls.get('hrp_p_' + u.id) !== btoa(pass)) return 'Неверный пароль'
-    if (u.banned) return 'Аккаунт заблокирован'
-    ls.set('hrp_session', u); setUser(u); closeAuth(); return null
+  const login = async (nick: string, pass: string): Promise<string | null> => {
+    setLoading(true)
+    try {
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ nick, password: pass })
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        return data.error || 'Ошибка входа'
+      }
+
+      // Сохраняем токен и пользователя
+      ls.set('hrp_token', data.token)
+      ls.set('hrp_session', data.user)
+      setUser(data.user)
+      closeAuth()
+      return null
+
+    } catch (error) {
+      console.error('Login error:', error)
+      return 'Ошибка подключения к серверу'
+    } finally {
+      setLoading(false)
+    }
   }
 
-  const register = (nick: string, email: string, pass: string): string | null => {
-    if (!nick || nick.length < 3) return 'Никнейм минимум 3 символа'
-    if (!email || !email.includes('@')) return 'Неверный email'
-    if (!pass || pass.length < 6) return 'Пароль минимум 6 символов'
-    const users: User[] = ls.get('hrp_users', [])
-    if (users.find(u => u.nick.toLowerCase() === nick.toLowerCase())) return 'Никнейм занят'
-    if (users.find(u => u.email === email.toLowerCase())) return 'Email уже используется'
-    const u: User = { id: 'u'+Date.now(), nick, email: email.toLowerCase(), role: 'Player', joined: new Date().toLocaleDateString('ru-RU') }
-    ls.set('hrp_users', [...users, u])
-    ls.set('hrp_p_' + u.id, btoa(pass))
-    ls.set('hrp_session', u); setUser(u); closeAuth(); return null
+  const register = async (nick: string, email: string, pass: string): Promise<string | null> => {
+    setLoading(true)
+    try {
+      const response = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ nick, email, password: pass })
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        return data.error || 'Ошибка регистрации'
+      }
+
+      // После успешной регистрации логиним пользователя
+      return await login(nick, pass)
+
+    } catch (error) {
+      console.error('Register error:', error)
+      return 'Ошибка подключения к серверу'
+    } finally {
+      setLoading(false)
+    }
   }
 
-  const logout = () => { ls.rm('hrp_session'); setUser(null) }
+  const logout = () => { 
+    ls.rm('hrp_token')
+    ls.rm('hrp_session')
+    setUser(null) 
+  }
 
-  return <Ctx.Provider value={{ user, login, register, logout, authOpen, authTab, openAuth, closeAuth }}>{children}</Ctx.Provider>
+  return <Ctx.Provider value={{ 
+    user, 
+    login, 
+    register, 
+    logout, 
+    authOpen, 
+    authTab, 
+    openAuth, 
+    closeAuth,
+    loading 
+  }}>{children}</Ctx.Provider>
 }
 
 export function useAuth() {

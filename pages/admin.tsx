@@ -5,15 +5,21 @@ import { useRouter } from 'next/router'
 import { motion } from 'framer-motion'
 import Header from '../components/Header'
 import { useAuth } from '../context/AuthContext'
+import { useAdminUsers, useAdminLogs } from '../hooks/useAdminApi'
 
 interface User { id: string; nick: string; email: string; role: string; joined: string; banned?: boolean }
-interface Log  { time: string; type: 'auth'|'forum'|'admin'; text: string }
 interface Role { id: string; name: string; color: string; icon: string }
 interface News { id: string; tag: string; tagColor: string; date: string; title: string; desc: string }
 
 const ls = {
-  get: (k: string, fb: any = []) => { try { return JSON.parse(localStorage.getItem(k)||'null')??fb } catch { return fb } },
-  set: (k: string, v: any) => localStorage.setItem(k, JSON.stringify(v)),
+  get: (k: string, fb: any = []) => { 
+    if (typeof window === 'undefined') return fb
+    try { return JSON.parse(localStorage.getItem(k)||'null')??fb } catch { return fb } 
+  },
+  set: (k: string, v: any) => {
+    if (typeof window === 'undefined') return
+    localStorage.setItem(k, JSON.stringify(v))
+  },
 }
 
 const ROLE_COLORS: Record<string,{ bg:string; color:string }> = {
@@ -24,17 +30,18 @@ const ROLE_COLORS: Record<string,{ bg:string; color:string }> = {
 
 const Admin: NextPage = () => {
   const { user } = useAuth()
-  const router   = useRouter()
-  const [tab, setTab]   = useState<'stats'|'users'|'roles'|'news'|'logs'|'settings'>('stats')
-  const [users, setUsers]     = useState<User[]>([])
-  const [logs, setLogs]       = useState<Log[]>([])
+  const router = useRouter()
+  const { users, loading: usersLoading, error: usersError, updateUser } = useAdminUsers()
+  const { logs, loading: logsLoading, error: logsError, clearLogs } = useAdminLogs()
+  
+  const [tab, setTab] = useState<'stats'|'users'|'roles'|'news'|'logs'|'settings'>('stats')
   const [uSearch, setUSearch] = useState('')
   const [lSearch, setLSearch] = useState('')
-  const [lType, setLType]     = useState('')
+  const [lType, setLType] = useState('')
   const [userSubTab, setUserSubTab] = useState<'members'|'staff'>('members')
-  const [editU, setEditU]     = useState<User|null>(null)
-  const [eRole, setERole]     = useState('')
-  const [eBan, setEBan]       = useState(false)
+  const [editU, setEditU] = useState<User|null>(null)
+  const [eRole, setERole] = useState('')
+  const [eBan, setEBan] = useState(false)
   const [cfg, setCfg]         = useState({ forumName: 'Horizon RP Forum', perPage: 15, regOpen: true })
 
   // Новости
@@ -71,14 +78,14 @@ const Admin: NextPage = () => {
 
   useEffect(() => {
     if (typeof window === 'undefined') return
-    const s = ls.get('hrp_session', null)
-    if (!s || (s.role !== 'Admin' && s.role !== 'Moder')) { router.push('/'); return }
-    setUsers(ls.get('hrp_users', []))
-    setLogs([...ls.get('hrp_logs', [])].reverse())
+    if (!user || (user.role !== 'Admin' && user.role !== 'Moder')) { 
+      router.push('/'); return 
+    }
+    // Данные загружаются через хуки useAdminUsers и useAdminLogs
     const c = ls.get('hrp_settings', null); if (c) setCfg(c)
     const r = ls.get('hrp_roles', null); if (r) setRoles(r)
     const n = ls.get('hrp_news', null); if (n) setNews(n)
-  }, [])
+  }, [user, router])
 
   if (!user || (user.role !== 'Admin' && user.role !== 'Moder')) return (
     <div className="min-h-screen flex flex-col items-center justify-center gap-4" style={{ background: '#0a0a0f' }}>
@@ -89,28 +96,26 @@ const Admin: NextPage = () => {
     </div>
   )
 
-  const topics = ls.get('hrp_topics', [])
-  const posts  = topics.reduce((s: number, t: any) => s + (t.posts?.length||0), 0)
-
-  const addLog = (type: Log['type'], text: string) => {
-    const all: Log[] = ls.get('hrp_logs', [])
-    const entry: Log = { type, text, time: new Date().toLocaleString('ru-RU') }
-    const next = [...all, entry].slice(-500)
-    ls.set('hrp_logs', next); setLogs([...next].reverse())
-  }
-
   const openEdit = (u: User) => { setEditU(u); setERole(u.role); setEBan(!!u.banned) }
-  const saveEdit = () => {
+  
+  const saveEdit = async () => {
     if (!editU) return
-    const next = users.map(u => u.id === editU.id ? { ...u, role: eRole, banned: eBan } : u)
-    setUsers(next); ls.set('hrp_users', next)
-    addLog('admin', `${user.nick} изменил ${editU.nick}: роль=${eRole}${eBan?' [БАН]':''}`)
-    setEditU(null)
+    try {
+      await updateUser(editU.id, { role: eRole, banned: eBan })
+      setEditU(null)
+      // Успех уже обрабатывается в хуке
+    } catch (error) {
+      console.error('Failed to update user:', error)
+      // Ошибка показывается через состояние хука
+    }
   }
-  const toggleBan = (u: User) => {
-    const next = users.map(x => x.id === u.id ? { ...x, banned: !x.banned } : x)
-    setUsers(next); ls.set('hrp_users', next)
-    addLog('admin', `${user.nick} ${u.banned?'разбанил':'забанил'} ${u.nick}`)
+
+  const toggleBan = async (u: User) => {
+    try {
+      await updateUser(u.id, { banned: !u.banned })
+    } catch (error) {
+      console.error('Failed to toggle ban:', error)
+    }
   }
 
   const fUsers = users.filter(u => !uSearch || u.nick.toLowerCase().includes(uSearch.toLowerCase()) || u.email.toLowerCase().includes(uSearch.toLowerCase()))
@@ -123,18 +128,15 @@ const Admin: NextPage = () => {
     if (!editNews) return
     const next = news.map(n => n.id === editNews.id ? { ...n, tag: nTag, tagColor: nTagColor, date: nDate, title: nTitle, desc: nDesc } : n)
     saveNews(next)
-    addLog('admin', `${user.nick} обновил новость "${nTitle}"`)
     setEditNews(null)
   }
   const deleteNews = (id: string) => {
     saveNews(news.filter(n => n.id !== id))
-    addLog('admin', `${user.nick} удалил новость`)
   }
   const addNews = () => {
     if (!nTitle.trim()) return
     const n: News = { id: 'n' + Date.now(), tag: nTag || 'Новость', tagColor: nTagColor, date: nDate || new Date().toLocaleDateString('ru-RU'), title: nTitle, desc: nDesc }
     saveNews([n, ...news])
-    addLog('admin', `${user.nick} опубликовал новость "${nTitle}"`)
     setShowAddNews(false); setNTag(''); setNTagColor('#a78bfa'); setNDate(''); setNTitle(''); setNDesc('')
   }
   const resetNewsForm = () => { setNTag(''); setNTagColor('#a78bfa'); setNDate(''); setNTitle(''); setNDesc('') }
@@ -146,7 +148,6 @@ const Admin: NextPage = () => {
     if (!editRole) return
     const next = roles.map(r => r.id === editRole.id ? { ...r, name: rName, color: rColor, icon: rIcon } : r)
     saveRoles(next)
-    addLog('admin', `${user.nick} изменил роль "${rName}"`)
     setEditRole(null)
   }
   const moveRole = (idx: number, dir: -1 | 1) => {
@@ -161,14 +162,12 @@ const Admin: NextPage = () => {
     if (roles.find(r => r.id === newRoleId)) return
     const next = [...roles, { id: newRoleId, name: newRoleName, color: newRoleColor, icon: newRoleIcon }]
     saveRoles(next)
-    addLog('admin', `${user.nick} добавил роль "${newRoleName}"`)
     setShowAddRole(false); setNewRoleId(''); setNewRoleName(''); setNewRoleColor('#60a5fa'); setNewRoleIcon('🎮')
   }
   const deleteRole = (id: string) => {
     if (['Admin','Moder','Player'].includes(id)) return // базовые роли нельзя удалять
     const next = roles.filter(r => r.id !== id)
     saveRoles(next)
-    addLog('admin', `${user.nick} удалил роль "${id}"`)
   }
   const getRoleStyle = (roleId: string) => {
     const r = roles.find(x => x.id === roleId)
@@ -214,8 +213,27 @@ const Admin: NextPage = () => {
           {/* СТАТИСТИКА */}
           {tab==='stats' && (
             <motion.div initial={{ opacity:0 }} animate={{ opacity:1 }}>
+              {(usersLoading || logsLoading) && (
+                <div className="text-center py-8">
+                  <div className="inline-block animate-spin w-8 h-8 border-4 border-purple-500 border-t-transparent rounded-full"></div>
+                  <p className="mt-2 text-sm" style={{ color:'#A9B0C2' }}>Загрузка данных...</p>
+                </div>
+              )}
+              
+              {usersError && (
+                <div className="mb-4 p-4 rounded-xl" style={{ background:'rgba(248,113,113,0.1)', border:'1px solid rgba(248,113,113,0.2)', color:'#f87171' }}>
+                  Ошибка загрузки пользователей: {usersError}
+                </div>
+              )}
+              
+              {logsError && (
+                <div className="mb-4 p-4 rounded-xl" style={{ background:'rgba(248,113,113,0.1)', border:'1px solid rgba(248,113,113,0.2)', color:'#f87171' }}>
+                  Ошибка загрузки логов: {logsError}
+                </div>
+              )}
+
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-                {[['👥',users.length,'Пользователей'],['💬',topics.length,'Тем'],['📝',posts,'Сообщений'],
+                {[['👥',users.length,'Пользователей'],['💬',0,'Тем'],['📝',0,'Сообщений'],
                   ['🛡',users.filter(u=>u.role==='Admin'||u.role==='Moder').length,'Модераторов'],
                   ['🚫',users.filter(u=>u.banned).length,'Забанено'],['📋',logs.length,'Логов']].map(([ic,v,l],i)=>(
                   <div key={i} className="glass-card p-5 text-center">
@@ -490,7 +508,13 @@ const Admin: NextPage = () => {
                   <option value="forum">Форум</option>
                   <option value="admin">Админ</option>
                 </select>
-                <button onClick={()=>{ ls.set('hrp_logs',[]); setLogs([]) }}
+                <button onClick={async () => {
+                  try {
+                    await clearLogs()
+                  } catch (error) {
+                    console.error('Failed to clear logs:', error)
+                  }
+                }}
                   className="px-4 py-2.5 rounded-xl text-sm transition-colors"
                   style={{ background:'rgba(248,113,113,0.1)', border:'1px solid rgba(248,113,113,0.25)', color:'#f87171' }}>
                   🗑 Очистить
@@ -522,7 +546,7 @@ const Admin: NextPage = () => {
                         className="w-full rounded-xl px-4 py-2.5 text-sm outline-none" style={inputStyle} />
                     </div>
                   ))}
-                  <button onClick={()=>{ ls.set('hrp_settings',cfg); addLog('admin',`${user.nick} обновил настройки`) }}
+                  <button onClick={()=>{ ls.set('hrp_settings',cfg) }}
                     className="btn-primary justify-center">💾 Сохранить</button>
                 </div>
               </div>
@@ -538,7 +562,7 @@ const Admin: NextPage = () => {
                         style={{ left: cfg.regOpen ? '22px' : '2px' }} />
                     </button>
                   </div>
-                  <button onClick={()=>{ ls.set('hrp_settings',cfg); addLog('admin',`${user.nick} обновил настройки`) }}
+                  <button onClick={()=>{ ls.set('hrp_settings',cfg) }}
                     className="btn-primary justify-center mt-2">💾 Сохранить</button>
                 </div>
               </div>
